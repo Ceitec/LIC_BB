@@ -25,7 +25,7 @@ Soubor:	Hlavicka s daty
 #define AllInit_H_
 
 #define F_CPU 14745600UL
-//#define MicroController Atmega128
+#define Libs_Tescan	BlackBox
 
 
 ///////////////////////////////////////////////////////////////////////////
@@ -54,8 +54,17 @@ Soubor:	Hlavicka s daty
 #define		Atmega32	2
 #define		Atmega64	3
 #define		Atmega128	4
-#define		Atmega644p	5
+#define		Atmega48	5
+#define		Atmega88	6
+#define		Atmega168	7
+#define		Atmega328	8
 
+// Definování základních karet
+#define ZakladniKarta	0
+#define OvladaniMotoru	1
+#define SvetlaZaverka	3	// 3 a 4 adresy
+
+#define BlackBox		8
 
 
 //Deklarace procedur

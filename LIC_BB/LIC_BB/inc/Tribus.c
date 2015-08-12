@@ -62,7 +62,7 @@ void TB_Init(void * setting_in_eeprom)
     // not valid data in eeprom
     TB_gbparam.eemagic = 66;
     TB_gbparam.baud = 4;
-    TB_gbparam.address = 6;
+    TB_gbparam.address = 7;
     TB_gbparam.telegram_pause_time = 0;
     TB_gbparam.host_address = 2;
     // save default setting to eeprom
@@ -383,13 +383,13 @@ byte TB_Decode(void)
       if (TB_bufIn[TB_BUF_TYPE] == 0) {
         // text mode
         TB_bufOut[0] = TB_AddrReply;
-        TB_bufOut[1] = '1';
-        TB_bufOut[2] = '0';
-        TB_bufOut[3] = '2';
-        TB_bufOut[4] = '1';
+        TB_bufOut[1] = SC_MODUL;
+        TB_bufOut[2] = SC_VERZE;
+        TB_bufOut[3] = (SC_ADRESS >> 8) & 0xFF;
+        TB_bufOut[4] = SC_ADRESS & 0xFF;
         TB_bufOut[5] = 'V';
-        TB_bufOut[6] = '1';
-        TB_bufOut[7] = '2';
+        TB_bufOut[6] = '2';
+        TB_bufOut[7] = '0';
         TB_bufOut[8] = '0';
         TB_Send();
        } else {

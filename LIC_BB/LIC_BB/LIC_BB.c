@@ -6,7 +6,7 @@
  */ 
 
 
-#include <avr/iom32.h>
+//#include <avr/iom32.h>
 #include <avr/io.h>
 //#include <avr/iom32.h>
 #include "inc/AllInit.h"
@@ -24,15 +24,103 @@
 #include <stdio.h>
 #include <string.h>
 
+//Nastavení pøerušení pro BlackBox
+#define INT1_SHIELD		INT1_vect
+#define INT2_SERVIS		INT2_vect
+#define INT3_CHAMBER	INT3_vect
+#define INT4_Channel	INT4_vect
+#define INT5_Channel	INT5_vect
 
-//#include <>
+volatile unsigned char Check_SHIELD;
+volatile unsigned char Check_SERVIS;
+volatile unsigned char Check_CHAMBER;
 
+#define _IL_SHIELD_ON (PIND & (1 << PIND1))
+#define _IL_SERVIS_ON (PIND & (1 << PIND2))
+#define _IL_CHAMBER_ON (PIND & (1 << PIND3))
+
+//PD1 - Shield
+//PD2 - Servis
+//PD3 - Chamber
+
+// User variables
+word timeout_A_max = 500;
+word timeout_B_max = 500;
+byte mask_A = 0x03;
+byte mask_B = 0x0C;
+
+byte armed_A = false;
+byte armed_B = false;
+word timeout_A = 0;
+word timeout_B = 0;
+byte mask_M = 0;
+
+
+//Pøerušení pro interlocky
+ISR(INT1_SHIELD);
+ISR(INT2_SERVIS);
+ISR(INT3_CHAMBER);
+ISR(INT4_Channel);
+ISR(INT5_Channel);
+void PreruseniBlackBox_Init(void);
+
+//Samotné pøerušení
+ISR(INT1_SHIELD)
+{
+	//Zde se musí dát nastavení do log.0 pro výstup PA7 Laser IN
+	PORTA |= (1 << PA7);
+	Check_SHIELD = TRUE;
+}
+
+ISR(INT2_SERVIS)
+{
+	Check_SERVIS = TRUE;
+}
+
+ISR(INT3_CHAMBER)
+{
+	Check_CHAMBER = TRUE;
+}
+
+ISR(INT4_Channel)
+{
+	if(armed_A)
+	{
+		timeout_A = timeout_A_max;
+		PORTC &= ~(mask_A);
+		armed_A = FALSE;
+	}
+}
+
+ISR(INT5_Channel)
+{
+	if(armed_B)
+	{
+		timeout_B = timeout_B_max;
+		PORTC &= ~(mask_B);
+		armed_B = FALSE;
+	}
+}
+
+/******************************************************/
+ISR(TIMER1_COMPA_vect)
+{
+	if (timeout_A > 0) {
+		if (--timeout_A == 0) {
+			PORTC |= mask_A;
+		};
+	}
+	if (timeout_B > 0) {
+		if (--timeout_B == 0) {
+			PORTC |= mask_B;
+		};
+	}
+}
+
+
+// Init pro Tribus
 volatile byte timer0_flag = 0; // T = 10ms
 byte led_timer = 0;
-
-
-
-
 
 
 
@@ -81,30 +169,182 @@ void try_receive_data(void)
 		{
 			switch (TB_Decode())
 			{
-				case TB_CMD_VZOREK:
-					if ()
+				case TB_CMD_BLACKBOX:
+					switch (TB_bufIn[TB_BUF_TYPE])
 					{
-						TB_SendAckOK();
+						case BB_ACTIVE:
+							switch (TB_bufIn[TB_BUF_MOTOR])
+							{
+								//Nastavení pro pøerušení ISR(INT4_Channel);
+								case 0:
+									if (TB_Value == 1)
+									{
+										armed_A = TRUE;	
+										TB_SendAckOK();
+									}
+									else
+									{
+										TB_SendAck(TB_ERR_NOK, TB_Value);
+									}
+									break;
+								//Nastavení pro pøerušení ISR(INT5_Channel)
+								case 1:
+									if (TB_Value == 1)
+									{
+										armed_B = TRUE;
+										TB_SendAckOK();
+									}
+									else
+									{
+										TB_SendAck(TB_ERR_NOK, TB_Value);
+									}
+									break;
+								default:
+									TB_SendAck(TB_ERR_NOK,0);
+									break;
+							}
+							break;
+						case BB_SETOUTPUT:
+							//Potvrzovací pøíkaz pokud je motor 0 tak se vezme a nastaví na výstup
+							if (TB_bufIn[TB_BUF_MOTOR] == 0)
+							{
+								PORTC |=  (TB_bufIn[4] & 0xF0);
+								TB_SendAckOK();
+							}
+							//Potvrzovací pøíkaz pokud je motor 1 tak se odpojí výstupy
+							else if (TB_bufIn[TB_BUF_MOTOR] == 1)
+							{
+								PORTC &= ~(TB_bufIn[4] & 0xF0);
+								TB_SendAckOK();
+							}
+							break;
+
+						case BB_SETTIME:
+							//Nastavení Timer A v hodnotì value je hodnota timeru
+							if (TB_bufIn[TB_BUF_MOTOR] == 0)
+							{
+								timeout_A_max = (TB_Value << 8) & 0xFFFF;
+								TB_SendAck(TB_ERR_OK, TB_Value);
+							}
+							//Nastavení Timer B v hodnotì value je hodnota timeru
+							else if (TB_bufIn[TB_BUF_MOTOR] == 1)
+							{
+								timeout_B_max = (TB_Value << 8) & 0xFFFF;
+								TB_SendAck(TB_ERR_OK, TB_Value);
+							}
+							else
+							{
+								TB_SendAck(TB_ERR_NOK, 0);
+							}
+							break;
+						case BB_SETMASK:
+							//Nastavení Timer A v hodnotì value je hodnota timeru
+							if (TB_bufIn[TB_BUF_MOTOR] == 0)
+							{
+								mask_A = (TB_Value << 24) & 0x0F;
+								
+								TB_SendAck(TB_ERR_OK, TB_Value);
+							}
+							//Nastavení Timer B v hodnotì value je hodnota timeru
+							else if (TB_bufIn[TB_BUF_MOTOR] == 1)
+							{
+								mask_B = (TB_Value << 24) & 0x0F;
+								TB_SendAck(TB_ERR_OK, TB_Value);
+							}
+							else
+							{
+								TB_SendAck(TB_ERR_NOK, 0);
+							}
+							break;
 					}
-					else
+					break;
+				case TB_CMD_INTERLOCK:
+					switch (TB_bufIn[TB_BUF_TYPE])
 					{
-						TB_SendAckOK();
-					}
+						// Shield
+						case IL_SHIELD:
+							// Pokud je Motor nastaven do 1 neboli true tak chce povolit laser
+							if (TB_bufIn[TB_BUF_MOTOR] == 1)
+							{
+								// Pokud zjistíme 
+								if (_IL_SHIELD_ON || _IL_CHAMBER_ON)
+								{	
+									if(_IL_SERVIS_ON)
+									{
+										//Interlock laser lze zapnout i když jsou otevøeny dveøe nebo dveøe od komory jelikož je zaplý servisní režim
+										PORTA |= (1 << PA7);
+										TB_SendAck(TB_ERR_OK, 0);
+									}
+									else
+									{
+										//Interlock laseru nelze zapnout jelikož jsou otevøeny dveøe nebo dveøe od komory Pro jistotu se vypne.
+										PORTA &= ~(1 << PA7);
+										TB_SendAck(TB_IL_ERR, 1);	
+									}
+								}
+								else
+								{
+									PORTA |= (1 << PA7);
+									TB_SendAck(TB_ERR_OK, 0);
+								}
+							}
+							//Nastavení Timer B v hodnotì value je hodnota timeru
+							else if (TB_bufIn[TB_BUF_MOTOR] == 0)
+							{
+								//Interlock laser lze zapnout i když jsou otevøeny dveøe nebo dveøe od komory jelikož je zaplý servisní režim
+								PORTA &= ~(1 << PA7);
+								TB_SendAck(TB_ERR_OK, 0);
+							}
+							else
+							{
+								TB_SendAck(TB_ERR_NOK, 0);
+							}
+							break;
+							
+						default:
+							TB_SendAck(TB_ERR_NOK, 0);
+							break;
+					} 
+					break;
 			}
 		}
 	}
 }
 
+void PreruseniBlackBox_Init(void)
+{
+	//Nastavení vstupních externích pøerušení
+	DDRD |= ~((1 << PD1) | (1 << PD2) | (1 << PD3));
+	
+	//Nastavení Channel 1-4 pro nastavování a IN_Laser
+	DDRA |= (1 << PA0) | (1 << PA1) | (1 << PA2) | (1 << PA3) | (1 << PA7);
+	//Nastavení Pull-up resistorù
+	PORTA = 0xFF;
+	
+	// Nastavení INT1 na nástupnou hranu
+	EICRA |= (1 << ISC10) | (1 << ISC11);
+	// Nastavení INT2 na nástupnou hranu
+	EICRA |= (1 << ISC20) | (1 << ISC21);
+	// Nastavení INT3 na nástupnou hranu
+	EICRA |= (1 << ISC30) | (1 << ISC31);
+
+	//Nastavení Timer1 = CTC
+	TCCR1A = 0x00;
+	TCCR1B = (1 << WGM12) | (1 << CS10);
+	OCR1A = 1474; // 14,7456MHz / 1474 ~ 10kHz
+
+	//Povolení pøerušení pro INT 1 - 5
+	EIMSK |= (1 << INT1) | (1 << INT2) | (1 << INT3) | (1 << INT4) | (1 << INT5);
+}
+
+
 int main(void)
 {
-/*
-	DDRA |= (1 << DDA7) | (1 << DDA6) | (1 << DDA5) | (1 << DDA4) | (1 << DDA3) | (1 << DDA2) | (1 << DDA1);
-	DDRB |= (1 << DDB4) | (1 << DDB3);
-	DDRC |= (1 << DDC7) | (1 << DDC6) | (1 << DDC5) | (1 << DDC4);
-	DDRD |= (1 << DDD4) | (1 << DDD3) | (1 << DDD2);
-*/
+	//Nastavení Systemového enable pro RS485 pro UART0	
+	DDRD |= (1 << PD0);
 
-	
+	PreruseniBlackBox_Init();
+		
 	timer_init();
 	uart0_init();
 	TB_Callback_setBaud = &uart0_set_baud;

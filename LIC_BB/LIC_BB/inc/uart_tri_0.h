@@ -5,21 +5,15 @@
 #include "uart_types.h"
 
 
-
-#if 0
-// code here is never included
-#endif
-
-#if defined(__ATmega48__) || defined(__ATmega88__)
-// code specific for these devices
-#elif defined (__ATmega169__)
-// code specific for ATmega169
-#endif // device specific code
-
-/************************************************************************/
-/* Definování Atmega8 Atmega16 Atmega32                                                  */
-/************************************************************************/
-#elif defined (__ATmega8__) || (__ATmega16__) || (__ATmega32__)
+	/************************************************************************/
+	/* Definování atmega 48 88 168 328                                      */
+	/************************************************************************/
+#if defined(__AVR_ATmega48__) || defined(__AVR_ATmega88__) || defined(__AVR_ATmega168__) || defined(__AVR_ATmega328__)
+	#error "Pozor Pozor nejsou ještì dodelany "
+	/************************************************************************/
+	/* Definování atmega 8 16 32		                                    */
+	/************************************************************************/
+#elif defined(__AVR_ATmega8__) || defined(__AVR_ATmega16__) || defined(__AVR_ATmega32__)
 
 	#define UART0_BUFFER_LINEAR_SIZE (0x10)
 	#define UART0_BUFFER_PACKET_SIZE (0x10)
@@ -47,30 +41,44 @@
 
 	#define UART0_BUFFER_LINEAR_SIZE_MAX (UART0_BUFFER_LINEAR_SIZE-1)
 	#define UART0_BUFFER_PACKET_SIZE_MAX (UART0_BUFFER_PACKET_SIZE-1)
+	
+	/************************************************************************/
+	/* Definování atmega 64 128			                                    */
+	/************************************************************************/
+#elif defined(__AVR_ATmega64__) || defined(__AVR_ATmega128__)
+	
+	#define UART0_BUFFER_LINEAR_SIZE (0x10)
+	#define UART0_BUFFER_PACKET_SIZE (0x10)
+	#define UART0_TIMEOUT (5)
+	#define UART0_DEFAULT_BAUD 115200
+	#define UART0_TX_TIMEOUT (200)
 
-/************************************************************************/
-/* Definování Atmega32                                                  */
-/************************************************************************/
-#elif defined (__ATmega64__)
+	#define UART0_PROC_UDR      UDR0
+	#define UART0_PROC_UCSRB    UCSR0B
+	#define UART0_PROC_UCSRA    UCSR0A
+	#define UART0_PROC_UBRRL    UBRR0L
+	#define UART0_PROC_RXCIE    RXCIE0
+	#define UART0_PROC_TXCIE    TXCIE0
+	#define UART0_PROC_RX_vect  USART0_RX_vect
+	#define UART0_PROC_TX_vect  USART0_TX_vect
+	#define UART0_PROC_TXEN     TXEN0
+	#define UART0_PROC_RXEN     RXEN0
 
-/************************************************************************/
-/* Definování Atmega32                                                  */
-/************************************************************************/
-#elif defined (__ATmega128__)
+	#define UART0_TX_ENA  PORTD |= BV(PD0);
+	#define UART0_TX_DIS  PORTD &= ~(BV(PD0));
 
-/************************************************************************/
-/* Definování Atmega32                                                  */
-/************************************************************************/
-#elif defined (__ATmega644P__)
 
-/************************************************************************/
-/* Pokud není definováno                                                  */
-/************************************************************************/
+	extern volatile byte uart0_status;
+	extern volatile Tuartflags uart0_flags;
+
+	#define UART0_BUFFER_LINEAR_SIZE_MAX (UART0_BUFFER_LINEAR_SIZE-1)
+	#define UART0_BUFFER_PACKET_SIZE_MAX (UART0_BUFFER_PACKET_SIZE-1)
+	
 #else
-#	ifndef
-#		warning "Pozor neni definovan jaky typ mikrokontroleru je pouzit"
-#	endif
+	# warning "Pozor neni definovan jaky typ mikrokontroleru je pouzit"
 #endif
+
+
 
 /*
  * Perform UART startup initialization.
@@ -86,3 +94,4 @@ byte uart_pac_rx_empty(void);
 byte uart_pac_rx_size(void);
 
 
+#endif /*_UART_TRI_0_H_*/
