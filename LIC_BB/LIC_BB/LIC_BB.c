@@ -68,8 +68,11 @@ void PreruseniBlackBox_Init(void);
 ISR(INT1_SHIELD)
 {
 	//Zde se musí dát nastavení do log.0 pro výstup PA7 Laser IN
-	PORTA |= (1 << PA7);
-	Check_SHIELD = TRUE;
+	if (!_IL_SERVIS_ON)
+	{
+		PORTA &= ~(1 << PA7);
+		Check_SHIELD = TRUE;
+	} 
 }
 
 ISR(INT2_SERVIS)
@@ -79,7 +82,12 @@ ISR(INT2_SERVIS)
 
 ISR(INT3_CHAMBER)
 {
-	Check_CHAMBER = TRUE;
+//Zde se musí dát nastavení do log.0 pro výstup PA7 Laser IN
+	if (!_IL_SERVIS_ON)
+	{
+		PORTA &= ~(1 << PA7);
+		Check_SHIELD = TRUE;
+	}
 }
 
 ISR(INT4_Channel)
