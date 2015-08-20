@@ -4,15 +4,16 @@
 //#include <stdbool.h>
 #include "uart_types.h"
 
+/*
 
-	/************************************************************************/
-	/* Definování atmega 48 88 168 328                                      */
-	/************************************************************************/
+	/ ************************************************************************ /
+	/ * Definování atmega 48 88 168 328                                      * /
+	/ ************************************************************************ /
 #if defined(__AVR_ATmega48__) || defined(__AVR_ATmega88__) || defined(__AVR_ATmega168__) || defined(__AVR_ATmega328__)
 	#error "Pozor Pozor nejsou ještì dodelany "
-	/************************************************************************/
-	/* Definování atmega 8 16 32		                                    */
-	/************************************************************************/
+	/ ************************************************************************ /
+	/ * Definování atmega 8 16 32		                                    * /
+	/ ************************************************************************ /
 #elif defined(__AVR_ATmega8__) || defined(__AVR_ATmega16__) || defined(__AVR_ATmega32__)
 
 	#define UART0_BUFFER_LINEAR_SIZE (0x10)
@@ -42,10 +43,11 @@
 	#define UART0_BUFFER_LINEAR_SIZE_MAX (UART0_BUFFER_LINEAR_SIZE-1)
 	#define UART0_BUFFER_PACKET_SIZE_MAX (UART0_BUFFER_PACKET_SIZE-1)
 	
-	/************************************************************************/
-	/* Definování atmega 64 128			                                    */
-	/************************************************************************/
-#elif defined(__AVR_ATmega64__) || defined(__AVR_ATmega128__)
+	/ ************************************************************************ /
+	/ * Definování atmega 64 128			                                    * /
+	/ ************************************************************************ /
+#elif defined(__AVR_ATmega64__) || defined(__AVR_ATmega128__) || defined(__AVR_ATmega128A__)
+*/
 	
 	#define UART0_BUFFER_LINEAR_SIZE (0x10)
 	#define UART0_BUFFER_PACKET_SIZE (0x10)
@@ -64,8 +66,8 @@
 	#define UART0_PROC_TXEN     TXEN0
 	#define UART0_PROC_RXEN     RXEN0
 
-	#define UART0_TX_ENA  PORTD |= BV(PD0);
-	#define UART0_TX_DIS  PORTD &= ~(BV(PD0));
+	#define UART0_TX_ENA  PORTD |= BV(PIND0);
+	#define UART0_TX_DIS  PORTD &= ~(BV(PIND0));
 
 
 	extern volatile byte uart0_status;
@@ -74,9 +76,11 @@
 	#define UART0_BUFFER_LINEAR_SIZE_MAX (UART0_BUFFER_LINEAR_SIZE-1)
 	#define UART0_BUFFER_PACKET_SIZE_MAX (UART0_BUFFER_PACKET_SIZE-1)
 	
+/*
 #else
 	# warning "Pozor neni definovan jaky typ mikrokontroleru je pouzit"
 #endif
+*/
 
 
 

@@ -8,7 +8,7 @@
 
 //#include <avr/iom32.h>
 #include <avr/io.h>
-//#include <avr/iom32.h>
+#include <avr/iom128a.h>
 #include "inc/AllInit.h"
 #include <util/delay.h>
 #include <avr/interrupt.h>
@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <string.h>
 
+/*
 //Nastavení pøerušení pro BlackBox
 #define INT1_SHIELD		INT1_vect
 #define INT2_SERVIS		INT2_vect
@@ -38,6 +39,7 @@ volatile unsigned char Check_CHAMBER;
 #define _IL_SHIELD_ON (PIND & (1 << PIND1))
 #define _IL_SERVIS_ON (PIND & (1 << PIND2))
 #define _IL_CHAMBER_ON (PIND & (1 << PIND3))
+*/
 
 //PD1 - Shield
 //PD2 - Servis
@@ -55,6 +57,7 @@ word timeout_A = 0;
 word timeout_B = 0;
 byte mask_M = 0;
 
+/*
 
 //Pøerušení pro interlocky
 ISR(INT1_SHIELD);
@@ -62,14 +65,19 @@ ISR(INT2_SERVIS);
 ISR(INT3_CHAMBER);
 ISR(INT4_Channel);
 ISR(INT5_Channel);
-void PreruseniBlackBox_Init(void);
+void PreruseniBlackBox_Init(void);*/
+
+/*
 
 //Samotné pøerušení
 ISR(INT1_SHIELD)
 {
 	//Zde se musí dát nastavení do log.0 pro výstup PA7 Laser IN
-	PORTA |= (1 << PA7);
-	Check_SHIELD = TRUE;
+	if (!_IL_SERVIS_ON)
+	{
+		PORTA &= ~(1 << PA7);
+		Check_SHIELD = TRUE;
+	} 
 }
 
 ISR(INT2_SERVIS)
@@ -79,7 +87,12 @@ ISR(INT2_SERVIS)
 
 ISR(INT3_CHAMBER)
 {
-	Check_CHAMBER = TRUE;
+//Zde se musí dát nastavení do log.0 pro výstup PA7 Laser IN
+	if (!_IL_SERVIS_ON)
+	{
+		PORTA &= ~(1 << PA7);
+		Check_SHIELD = TRUE;
+	}
 }
 
 ISR(INT4_Channel)
@@ -100,9 +113,10 @@ ISR(INT5_Channel)
 		PORTC &= ~(mask_B);
 		armed_B = FALSE;
 	}
-}
+}*/
 
 /******************************************************/
+/*
 ISR(TIMER1_COMPA_vect)
 {
 	if (timeout_A > 0) {
@@ -116,6 +130,8 @@ ISR(TIMER1_COMPA_vect)
 		};
 	}
 }
+*/
+
 
 
 // Init pro Tribus
@@ -132,7 +148,9 @@ void send_data(void)
 //----------------------------------------------------------
 ISR(TIMER1_CAPT_vect) {
 	// T = 10ms
-	timer0_flag = true;
+	
+	timer0_flag = TRUE;
+	
 }
 
 //----------------------------------------------------------
@@ -144,7 +162,7 @@ void process_timer_100Hz(void)
 		if (led_timer > 0) {
 			led_timer--;
 			if (led_timer == 0) {
-				PORTB ^= (1 << PB4);
+				PORTB ^= (1 << PINB4);
 			}
 		}
 	}
@@ -170,7 +188,7 @@ void try_receive_data(void)
 			switch (TB_Decode())
 			{
 				case TB_CMD_BLACKBOX:
-					switch (TB_bufIn[TB_BUF_TYPE])
+					/*switch (TB_bufIn[TB_BUF_TYPE])
 					{
 						case BB_ACTIVE:
 							switch (TB_bufIn[TB_BUF_MOTOR])
@@ -256,10 +274,10 @@ void try_receive_data(void)
 								TB_SendAck(TB_ERR_NOK, 0);
 							}
 							break;
-					}
+					}*/
 					break;
 				case TB_CMD_INTERLOCK:
-					switch (TB_bufIn[TB_BUF_TYPE])
+					/*switch (TB_bufIn[TB_BUF_TYPE])
 					{
 						// Shield
 						case IL_SHIELD:
@@ -304,12 +322,13 @@ void try_receive_data(void)
 						default:
 							TB_SendAck(TB_ERR_NOK, 0);
 							break;
-					} 
+					} */
 					break;
 			}
 		}
 	}
 }
+/*
 
 void PreruseniBlackBox_Init(void)
 {
@@ -336,17 +355,24 @@ void PreruseniBlackBox_Init(void)
 	//Povolení pøerušení pro INT 1 - 5
 	EIMSK |= (1 << INT1) | (1 << INT2) | (1 << INT3) | (1 << INT4) | (1 << INT5);
 }
+*/
 
 
 int main(void)
 {
+	DDRA |= (1 << DDRD6);
+	PORTA &= ~(1 << PINA6);
+	
+	
 	//Nastavení Systemového enable pro RS485 pro UART0	
-	DDRD |= (1 << PD0);
-
-	PreruseniBlackBox_Init();
+	DDRD |= (1 << DDRD0);
+	
+	//PreruseniBlackBox_Init();
 		
 	timer_init();
+	
 	uart0_init();
+	PORTA |= (1 << PINA6);
 	TB_Callback_setBaud = &uart0_set_baud;
 	TB_Callback_TX = &send_data;
 	TB_Init((void*) 0x10); // addr in eeprom with settings
