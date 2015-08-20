@@ -8,7 +8,7 @@
 
 //#include <avr/iom32.h>
 #include <avr/io.h>
-#include <avr/iom128a.h>
+//#include <avr/iom128a.h>
 #include "inc/AllInit.h"
 #include <util/delay.h>
 #include <avr/interrupt.h>
@@ -24,7 +24,7 @@
 #include <stdio.h>
 #include <string.h>
 
-/*
+
 //Nastavení pøerušení pro BlackBox
 #define INT1_SHIELD		INT1_vect
 #define INT2_SERVIS		INT2_vect
@@ -39,7 +39,7 @@ volatile unsigned char Check_CHAMBER;
 #define _IL_SHIELD_ON (PIND & (1 << PIND1))
 #define _IL_SERVIS_ON (PIND & (1 << PIND2))
 #define _IL_CHAMBER_ON (PIND & (1 << PIND3))
-*/
+
 
 //PD1 - Shield
 //PD2 - Servis
@@ -57,7 +57,7 @@ word timeout_A = 0;
 word timeout_B = 0;
 byte mask_M = 0;
 
-/*
+
 
 //Pøerušení pro interlocky
 ISR(INT1_SHIELD);
@@ -65,15 +65,15 @@ ISR(INT2_SERVIS);
 ISR(INT3_CHAMBER);
 ISR(INT4_Channel);
 ISR(INT5_Channel);
-void PreruseniBlackBox_Init(void);*/
+void PreruseniBlackBox_Init(void);
 
-/*
+
 
 //Samotné pøerušení
 ISR(INT1_SHIELD)
 {
 	//Zde se musí dát nastavení do log.0 pro výstup PA7 Laser IN
-	if (!_IL_SERVIS_ON)
+	if (!_IL_SHIELD_ON)
 	{
 		PORTA &= ~(1 << PA7);
 		Check_SHIELD = TRUE;
@@ -87,8 +87,8 @@ ISR(INT2_SERVIS)
 
 ISR(INT3_CHAMBER)
 {
-//Zde se musí dát nastavení do log.0 pro výstup PA7 Laser IN
-	if (!_IL_SERVIS_ON)
+	//Zde se musí dát nastavení do log.0 pro výstup PA7 Laser IN
+	if (!_IL_CHAMBER_ON)
 	{
 		PORTA &= ~(1 << PA7);
 		Check_SHIELD = TRUE;
@@ -113,11 +113,11 @@ ISR(INT5_Channel)
 		PORTC &= ~(mask_B);
 		armed_B = FALSE;
 	}
-}*/
+}
 
 /******************************************************/
-/*
-ISR(TIMER1_COMPA_vect)
+
+ISR(TIMER3_COMPA_vect)
 {
 	if (timeout_A > 0) {
 		if (--timeout_A == 0) {
@@ -130,7 +130,7 @@ ISR(TIMER1_COMPA_vect)
 		};
 	}
 }
-*/
+
 
 
 
@@ -162,7 +162,7 @@ void process_timer_100Hz(void)
 		if (led_timer > 0) {
 			led_timer--;
 			if (led_timer == 0) {
-				PORTB ^= (1 << PINB4);
+				//PORTA ^= (1 << PINA6);
 			}
 		}
 	}
@@ -188,7 +188,7 @@ void try_receive_data(void)
 			switch (TB_Decode())
 			{
 				case TB_CMD_BLACKBOX:
-					/*switch (TB_bufIn[TB_BUF_TYPE])
+					switch (TB_bufIn[TB_BUF_TYPE])
 					{
 						case BB_ACTIVE:
 							switch (TB_bufIn[TB_BUF_MOTOR])
@@ -274,17 +274,17 @@ void try_receive_data(void)
 								TB_SendAck(TB_ERR_NOK, 0);
 							}
 							break;
-					}*/
+					}
 					break;
 				case TB_CMD_INTERLOCK:
-					/*switch (TB_bufIn[TB_BUF_TYPE])
+					switch (TB_bufIn[TB_BUF_TYPE])
 					{
 						// Shield
 						case IL_SHIELD:
 							// Pokud je Motor nastaven do 1 neboli true tak chce povolit laser
 							if (TB_bufIn[TB_BUF_MOTOR] == 1)
 							{
-								// Pokud zjistíme 
+								// Pokud zjistíme že je zavøen kryt aj komora
 								if (_IL_SHIELD_ON || _IL_CHAMBER_ON)
 								{	
 									if(_IL_SERVIS_ON)
@@ -302,7 +302,7 @@ void try_receive_data(void)
 								}
 								else
 								{
-									PORTA |= (1 << PA7);
+									PORTA &= ~(1 << PA7);
 									TB_SendAck(TB_ERR_OK, 0);
 								}
 							}
@@ -322,57 +322,55 @@ void try_receive_data(void)
 						default:
 							TB_SendAck(TB_ERR_NOK, 0);
 							break;
-					} */
+					} 
 					break;
 			}
 		}
 	}
 }
-/*
+
 
 void PreruseniBlackBox_Init(void)
 {
 	//Nastavení vstupních externích pøerušení
-	DDRD |= ~((1 << PD1) | (1 << PD2) | (1 << PD3));
+	DDRD &= ~((1 << PD1) | (1 << PD2) | (1 << PD3));
 	
 	//Nastavení Channel 1-4 pro nastavování a IN_Laser
 	DDRA |= (1 << PA0) | (1 << PA1) | (1 << PA2) | (1 << PA3) | (1 << PA7);
 	//Nastavení Pull-up resistorù
-	PORTA = 0xFF;
+	PORTA |= (1 << PD1) | (1 << PD2) | (1 << PD3);
 	
 	// Nastavení INT1 na nástupnou hranu
-	EICRA |= (1 << ISC10) | (1 << ISC11);
+	EICRA |= (1 << ISC10);// | (1 << ISC11);
 	// Nastavení INT2 na nástupnou hranu
-	EICRA |= (1 << ISC20) | (1 << ISC21);
+	EICRA |= (1 << ISC20);// | (1 << ISC21);
 	// Nastavení INT3 na nástupnou hranu
-	EICRA |= (1 << ISC30) | (1 << ISC31);
+	EICRA |= (1 << ISC30);// | (1 << ISC31);
 
 	//Nastavení Timer1 = CTC
-	TCCR1A = 0x00;
-	TCCR1B = (1 << WGM12) | (1 << CS10);
-	OCR1A = 1474; // 14,7456MHz / 1474 ~ 10kHz
+	TCCR3A = 0x00;
+	TCCR3B = (1 << WGM32) | (1 << CS30);
+	OCR3A = 1474; // 14,7456MHz / 1474 ~ 10kHz
 
 	//Povolení pøerušení pro INT 1 - 5
 	EIMSK |= (1 << INT1) | (1 << INT2) | (1 << INT3) | (1 << INT4) | (1 << INT5);
 }
-*/
+
 
 
 int main(void)
 {
-	DDRA |= (1 << DDRD6);
-	PORTA &= ~(1 << PINA6);
+	DDRA |= (1 << DDRA6);
 	
 	
 	//Nastavení Systemového enable pro RS485 pro UART0	
 	DDRD |= (1 << DDRD0);
 	
-	//PreruseniBlackBox_Init();
+	PreruseniBlackBox_Init();
 		
 	timer_init();
 	
 	uart0_init();
-	PORTA |= (1 << PINA6);
 	TB_Callback_setBaud = &uart0_set_baud;
 	TB_Callback_TX = &send_data;
 	TB_Init((void*) 0x10); // addr in eeprom with settings
@@ -381,6 +379,7 @@ int main(void)
 	
     while(1)
     {
+		
 		process_timer_100Hz();
 		uart0_process();
 		try_receive_data();
