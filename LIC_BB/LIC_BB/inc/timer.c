@@ -6,6 +6,7 @@
 
 #include <avr/io.h>
 #include "common_defs.h"
+#include "timer.h"
 
 //----------------------------------------------------
 void timer_init(void)
@@ -26,7 +27,7 @@ void timer_init(void)
   TCCR1A = BV(WGM11) | BV(COM1A1) | BV(COM1B1); // Fast PWM
   TCCR1B = BV(WGM12) | BV(WGM13) | 4; // Fast PWM + presca = 1024
   TIMSK |= BV(TICIE1); // capt int enabled
-
+	
   // * Timer 2 - unused
   //TCCR2 = 0; // stopped
 }

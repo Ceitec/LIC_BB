@@ -45,7 +45,8 @@
 	/************************************************************************/
 	/* Definování atmega 64 128			                                    */
 	/************************************************************************/
-#elif defined(__AVR_ATmega64__) || defined(__AVR_ATmega128__)
+#elif defined(__AVR_ATmega64__) || defined(__AVR_ATmega128__) || defined(__AVR_ATmega128A__)
+
 	
 	#define UART0_BUFFER_LINEAR_SIZE (0x10)
 	#define UART0_BUFFER_PACKET_SIZE (0x10)
@@ -64,8 +65,8 @@
 	#define UART0_PROC_TXEN     TXEN0
 	#define UART0_PROC_RXEN     RXEN0
 
-	#define UART0_TX_ENA  PORTD |= BV(PD0);
-	#define UART0_TX_DIS  PORTD &= ~(BV(PD0));
+	#define UART0_TX_ENA  PORTD |= BV(PIND0);
+	#define UART0_TX_DIS  PORTD &= ~(BV(PIND0));
 
 
 	extern volatile byte uart0_status;
@@ -74,9 +75,11 @@
 	#define UART0_BUFFER_LINEAR_SIZE_MAX (UART0_BUFFER_LINEAR_SIZE-1)
 	#define UART0_BUFFER_PACKET_SIZE_MAX (UART0_BUFFER_PACKET_SIZE-1)
 	
+
 #else
 	# warning "Pozor neni definovan jaky typ mikrokontroleru je pouzit"
 #endif
+
 
 
 
