@@ -263,7 +263,7 @@ END GROUP
 .rela.plt
  *(.rela.plt)
 
-.text           0x00000000     0x1082
+.text           0x00000000     0x1112
  *(.vectors)
  .vectors       0x00000000       0x8c c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr51/crtm128.o
                 0x00000000                __vector_default
@@ -318,162 +318,162 @@ END GROUP
  *(.init8)
  *(.init8)
  *(.init9)
- .init9         0x000000d8        0x4 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr51/crtm128.o
+ .init9         0x000000d8        0x6 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr51/crtm128.o
  *(.init9)
  *(.text)
- .text          0x000000dc        0x2 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr51/crtm128.o
-                0x000000dc                __vector_22
-                0x000000dc                __vector_28
-                0x000000dc                __vector_1
-                0x000000dc                __vector_32
-                0x000000dc                __vector_34
-                0x000000dc                __vector_24
-                0x000000dc                __bad_interrupt
-                0x000000dc                __vector_31
-                0x000000dc                __vector_23
-                0x000000dc                __vector_30
-                0x000000dc                __vector_25
-                0x000000dc                __vector_13
-                0x000000dc                __vector_17
-                0x000000dc                __vector_19
-                0x000000dc                __vector_7
-                0x000000dc                __vector_27
-                0x000000dc                __vector_33
-                0x000000dc                __vector_9
-                0x000000dc                __vector_21
-                0x000000dc                __vector_15
-                0x000000dc                __vector_29
-                0x000000dc                __vector_8
-                0x000000dc                __vector_26
-                0x000000dc                __vector_14
-                0x000000dc                __vector_10
-                0x000000dc                __vector_16
-                0x000000de                . = ALIGN (0x2)
+ .text          0x000000de        0x2 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr51/crtm128.o
+                0x000000de                __vector_22
+                0x000000de                __vector_28
+                0x000000de                __vector_1
+                0x000000de                __vector_32
+                0x000000de                __vector_34
+                0x000000de                __vector_24
+                0x000000de                __bad_interrupt
+                0x000000de                __vector_31
+                0x000000de                __vector_23
+                0x000000de                __vector_30
+                0x000000de                __vector_25
+                0x000000de                __vector_13
+                0x000000de                __vector_17
+                0x000000de                __vector_19
+                0x000000de                __vector_7
+                0x000000de                __vector_27
+                0x000000de                __vector_33
+                0x000000de                __vector_9
+                0x000000de                __vector_21
+                0x000000de                __vector_15
+                0x000000de                __vector_29
+                0x000000de                __vector_8
+                0x000000de                __vector_26
+                0x000000de                __vector_14
+                0x000000de                __vector_10
+                0x000000de                __vector_16
+                0x000000e0                . = ALIGN (0x2)
  *(.text.*)
  .text.timer_init
-                0x000000de       0x20 inc/timer.o
-                0x000000de                timer_init
- .text.TB_Send  0x000000fe       0x10 inc/Tribus.o
-                0x000000fe                TB_Send
+                0x000000e0       0x20 inc/timer.o
+                0x000000e0                timer_init
+ .text.TB_Send  0x00000100       0x10 inc/Tribus.o
+                0x00000100                TB_Send
  .text.TB_calcSum
-                0x0000010e       0x1a inc/Tribus.o
-                0x0000010e                TB_calcSum
- .text.TB_Init  0x00000128       0x72 inc/Tribus.o
-                0x00000128                TB_Init
+                0x00000110       0x1a inc/Tribus.o
+                0x00000110                TB_calcSum
+ .text.TB_Init  0x0000012a       0x72 inc/Tribus.o
+                0x0000012a                TB_Init
  .text.TB_SendAck
-                0x0000019a       0x32 inc/Tribus.o
-                0x0000019a                TB_SendAck
- .text.TB_Read  0x000001cc       0x3e inc/Tribus.o
-                0x000001cc                TB_Read
+                0x0000019c       0x32 inc/Tribus.o
+                0x0000019c                TB_SendAck
+ .text.TB_Read  0x000001ce       0x3e inc/Tribus.o
+                0x000001ce                TB_Read
  .text.TB_Decode
-                0x0000020a      0x60c inc/Tribus.o
-                0x0000020a                TB_Decode
+                0x0000020c      0x60c inc/Tribus.o
+                0x0000020c                TB_Decode
  .text.TB_SendAckOK
-                0x00000816        0xc inc/Tribus.o
-                0x00000816                TB_SendAckOK
+                0x00000818        0xc inc/Tribus.o
+                0x00000818                TB_SendAckOK
  .text.uart_get_char
-                0x00000822       0x28 inc/uart_tri_0.o
-                0x00000822                uart_get_char
+                0x00000824       0x28 inc/uart_tri_0.o
+                0x00000824                uart_get_char
  .text.uart_receive_char
-                0x0000084a       0x18 inc/uart_tri_0.o
-                0x0000084a                uart_receive_char
+                0x0000084c       0x18 inc/uart_tri_0.o
+                0x0000084c                uart_receive_char
  .text.uart_send_char
-                0x00000862       0x16 inc/uart_tri_0.o
-                0x00000862                uart_send_char
+                0x00000864       0x16 inc/uart_tri_0.o
+                0x00000864                uart_send_char
  .text.uart_send
-                0x00000878       0x1e inc/uart_tri_0.o
-                0x00000878                uart_send
+                0x0000087a       0x1e inc/uart_tri_0.o
+                0x0000087a                uart_send
  .text.uart_interrupt_rx
-                0x00000896        0xc inc/uart_tri_0.o
-                0x00000896                uart_interrupt_rx
+                0x00000898        0xc inc/uart_tri_0.o
+                0x00000898                uart_interrupt_rx
  .text.uart_interrupt_tx
-                0x000008a2        0xc inc/uart_tri_0.o
-                0x000008a2                uart_interrupt_tx
+                0x000008a4        0xc inc/uart_tri_0.o
+                0x000008a4                uart_interrupt_tx
  .text.__vector_18
-                0x000008ae       0x62 inc/uart_tri_0.o
-                0x000008ae                __vector_18
+                0x000008b0       0x62 inc/uart_tri_0.o
+                0x000008b0                __vector_18
  .text.__vector_20
-                0x00000910       0x6e inc/uart_tri_0.o
-                0x00000910                __vector_20
+                0x00000912       0x6e inc/uart_tri_0.o
+                0x00000912                __vector_20
  .text.uart0_init
-                0x0000097e       0x18 inc/uart_tri_0.o
-                0x0000097e                uart0_init
+                0x00000980       0x18 inc/uart_tri_0.o
+                0x00000980                uart0_init
  .text.uart0_process
-                0x00000996      0x11e inc/uart_tri_0.o
-                0x00000996                uart0_process
+                0x00000998      0x11e inc/uart_tri_0.o
+                0x00000998                uart0_process
  .text.uart0_ISR_timer
-                0x00000ab4       0x30 inc/uart_tri_0.o
-                0x00000ab4                uart0_ISR_timer
+                0x00000ab6       0x30 inc/uart_tri_0.o
+                0x00000ab6                uart0_ISR_timer
  .text.uart0_get_data_begin
-                0x00000ae4       0x22 inc/uart_tri_0.o
-                0x00000ae4                uart0_get_data_begin
+                0x00000ae6       0x22 inc/uart_tri_0.o
+                0x00000ae6                uart0_get_data_begin
  .text.uart0_get_data_end
-                0x00000b06       0x26 inc/uart_tri_0.o
-                0x00000b06                uart0_get_data_end
+                0x00000b08       0x26 inc/uart_tri_0.o
+                0x00000b08                uart0_get_data_end
  .text.uart0_put_data
-                0x00000b2c       0x56 inc/uart_tri_0.o
-                0x00000b2c                uart0_put_data
+                0x00000b2e       0x56 inc/uart_tri_0.o
+                0x00000b2e                uart0_put_data
  .text.uart0_set_baud
-                0x00000b82       0x56 inc/uart_tri_0.o
-                0x00000b82                uart0_set_baud
+                0x00000b84       0x56 inc/uart_tri_0.o
+                0x00000b84                uart0_set_baud
  .text.send_data
-                0x00000bd8        0x8 LIC_BB.o
-                0x00000bd8                send_data
+                0x00000bda        0x8 LIC_BB.o
+                0x00000bda                send_data
  .text.__vector_2
-                0x00000be0       0x24 LIC_BB.o
-                0x00000be0                __vector_2
+                0x00000be2       0x24 LIC_BB.o
+                0x00000be2                __vector_2
  .text.__vector_3
-                0x00000c04       0x1e LIC_BB.o
-                0x00000c04                __vector_3
+                0x00000c06       0x1e LIC_BB.o
+                0x00000c06                __vector_3
  .text.__vector_4
-                0x00000c22       0x24 LIC_BB.o
-                0x00000c22                __vector_4
+                0x00000c24       0x24 LIC_BB.o
+                0x00000c24                __vector_4
  .text.__vector_5
-                0x00000c46       0x44 LIC_BB.o
-                0x00000c46                __vector_5
+                0x00000c48       0x44 LIC_BB.o
+                0x00000c48                __vector_5
  .text.__vector_6
-                0x00000c8a       0x44 LIC_BB.o
-                0x00000c8a                __vector_6
+                0x00000c8c       0x44 LIC_BB.o
+                0x00000c8c                __vector_6
  .text.__vector_12
-                0x00000cce       0x64 LIC_BB.o
-                0x00000cce                __vector_12
+                0x00000cd0       0x64 LIC_BB.o
+                0x00000cd0                __vector_12
  .text.__vector_11
-                0x00000d32       0x1e LIC_BB.o
-                0x00000d32                __vector_11
+                0x00000d34       0x1e LIC_BB.o
+                0x00000d34                __vector_11
  .text.process_timer_100Hz
-                0x00000d50       0x2a LIC_BB.o
-                0x00000d50                process_timer_100Hz
+                0x00000d52       0x2a LIC_BB.o
+                0x00000d52                process_timer_100Hz
  .text.try_receive_data
-                0x00000d7a      0x21e LIC_BB.o
-                0x00000d7a                try_receive_data
+                0x00000d7c      0x2ac LIC_BB.o
+                0x00000d7c                try_receive_data
  .text.PreruseniBlackBox_Init
-                0x00000f98       0x3c LIC_BB.o
-                0x00000f98                PreruseniBlackBox_Init
- .text.main     0x00000fd4       0x30 LIC_BB.o
-                0x00000fd4                main
- .text.libgcc   0x00001004        0xc c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avr51\libgcc.a(_tablejump.o)
-                0x00001004                __tablejump2__
-                0x00001008                __tablejump__
+                0x00001028       0x3c LIC_BB.o
+                0x00001028                PreruseniBlackBox_Init
+ .text.main     0x00001064       0x30 LIC_BB.o
+                0x00001064                main
+ .text.libgcc   0x00001094        0xc c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avr51\libgcc.a(_tablejump.o)
+                0x00001094                __tablejump2__
+                0x00001098                __tablejump__
  .text.avr-libc
-                0x00001010       0x20 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr51\libc.a(eerd_block_atmega128.o)
-                0x00001010                __eerd_block_m128
-                0x00001014                __eerd_blraw_m128
+                0x000010a0       0x20 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr51\libc.a(eerd_block_atmega128.o)
+                0x000010a0                __eerd_block_m128
+                0x000010a4                __eerd_blraw_m128
  .text.avr-libc
-                0x00001030       0x22 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr51\libc.a(eeupd_byte_atmega128.o)
-                0x00001030                __eeupd_byte_m128
-                0x00001032                __eeupd_r18_m128
+                0x000010c0       0x22 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr51\libc.a(eeupd_byte_atmega128.o)
+                0x000010c0                __eeupd_byte_m128
+                0x000010c2                __eeupd_r18_m128
  .text.avr-libc
-                0x00001052       0x12 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr51\libc.a(eewr_block_atmega128.o)
-                0x00001052                __eewr_block_m128
+                0x000010e2       0x12 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr51\libc.a(eewr_block_atmega128.o)
+                0x000010e2                __eewr_block_m128
  .text.avr-libc
-                0x00001064       0x1a c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr51\libc.a(eewr_byte_atmega128.o)
-                0x00001064                __eewr_byte_m128
-                0x00001066                __eewr_r18_m128
-                0x0000107e                . = ALIGN (0x2)
+                0x000010f4       0x1a c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/../../../../avr/lib/avr51\libc.a(eewr_byte_atmega128.o)
+                0x000010f4                __eewr_byte_m128
+                0x000010f6                __eewr_r18_m128
+                0x0000110e                . = ALIGN (0x2)
  *(.fini9)
- .fini9         0x0000107e        0x0 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avr51\libgcc.a(_exit.o)
-                0x0000107e                _exit
-                0x0000107e                exit
+ .fini9         0x0000110e        0x0 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avr51\libgcc.a(_exit.o)
+                0x0000110e                _exit
+                0x0000110e                exit
  *(.fini9)
  *(.fini8)
  *(.fini8)
@@ -492,11 +492,11 @@ END GROUP
  *(.fini1)
  *(.fini1)
  *(.fini0)
- .fini0         0x0000107e        0x4 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avr51\libgcc.a(_exit.o)
+ .fini0         0x0000110e        0x4 c:/program files (x86)/atmel/atmel toolchain/avr8 gcc/native/3.4.1061/avr8-gnu-toolchain/bin/../lib/gcc/avr/4.8.1/avr51\libgcc.a(_exit.o)
  *(.fini0)
-                0x00001082                _etext = .
+                0x00001112                _etext = .
 
-.data           0x00800100        0x6 load address 0x00001082
+.data           0x00800100        0x6 load address 0x00001112
                 0x00800100                PROVIDE (__data_start, .)
  *(.data)
  *(.data*)
@@ -597,8 +597,8 @@ END GROUP
                 0x00800295                Check_SHIELD
                 0x00800296                Check_SERVIS
                 0x00800297                PROVIDE (__bss_end, .)
-                0x00001082                __data_load_start = LOADADDR (.data)
-                0x00001088                __data_load_end = (__data_load_start + SIZEOF (.data))
+                0x00001112                __data_load_start = LOADADDR (.data)
+                0x00001118                __data_load_end = (__data_load_start + SIZEOF (.data))
 
 .noinit         0x00800297        0x0
                 0x00800297                PROVIDE (__noinit_start, .)
@@ -681,12 +681,12 @@ END GROUP
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000     0x1a21
+.debug_info     0x00000000     0x1a6c
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x00000000       0x8e inc/timer.o
  .debug_info    0x0000008e      0xb9c inc/Tribus.o
  .debug_info    0x00000c2a      0x71f inc/uart_tri_0.o
- .debug_info    0x00001349      0x6d8 LIC_BB.o
+ .debug_info    0x00001349      0x723 LIC_BB.o
 
 .debug_abbrev   0x00000000      0x672
  *(.debug_abbrev)
@@ -695,12 +695,12 @@ END GROUP
  .debug_abbrev  0x0000027d      0x25d inc/uart_tri_0.o
  .debug_abbrev  0x000004da      0x198 LIC_BB.o
 
-.debug_line     0x00000000     0x128f
+.debug_line     0x00000000     0x12bf
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x00000000       0xd1 inc/timer.o
  .debug_line    0x000000d1      0x841 inc/Tribus.o
  .debug_line    0x00000912      0x4fe inc/uart_tri_0.o
- .debug_line    0x00000e10      0x47f LIC_BB.o
+ .debug_line    0x00000e10      0x4af LIC_BB.o
 
 .debug_frame    0x00000000      0x44c
  *(.debug_frame)

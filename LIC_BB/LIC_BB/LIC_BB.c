@@ -266,46 +266,73 @@ void try_receive_data(void)
 							break;
 					}
 					break;
+					
+					
 				case TB_CMD_INTERLOCK:
 					switch (TB_bufIn[TB_BUF_TYPE])
 					{
-						// Shield
-						case IL_SHIELD:
-							// Pokud je Motor nastaven do 1 neboli true tak chce povolit laser
-							if (TB_bufIn[TB_BUF_MOTOR] == 1)
+						//info
+						case IL_INFO:
+							if (TB_bufIn[TB_BUF_MOTOR] == 0)
 							{
-								// Pokud zjistíme 
-								if (_IL_SHIELD_ON || _IL_CHAMBER_ON)
-								{	
-									if(_IL_SERVIS_ON)
-									{
-										//Interlock laser lze zapnout i když jsou otevøeny dveøe nebo dveøe od komory jelikož je zaplý servisní režim
-										PORTA |= (1 << PA7);
-										TB_SendAck(TB_ERR_OK, 0);
-									}
-									else
-									{
-										//Interlock laseru nelze zapnout jelikož jsou otevøeny dveøe nebo dveøe od komory Pro jistotu se vypne.
-										PORTA &= ~(1 << PA7);
-										TB_SendAck(TB_IL_ERR, 1);	
-									}
-								}
-								else
-								{
-									PORTA |= (1 << PA7);
-									TB_SendAck(TB_ERR_OK, 0);
-								}
+								TB_SendAck(TB_ERR_OK, _IL_SERVIS_ON);	
 							}
-							//Nastavení Timer B v hodnotì value je hodnota timeru
-							else if (TB_bufIn[TB_BUF_MOTOR] == 0)
+							else if (TB_bufIn[TB_BUF_MOTOR] == 1)
 							{
-								//Interlock laser lze zapnout i když jsou otevøeny dveøe nebo dveøe od komory jelikož je zaplý servisní režim
-								PORTA &= ~(1 << PA7);
-								TB_SendAck(TB_ERR_OK, 0);
+								TB_SendAck(TB_ERR_OK, _IL_CHAMBER_ON + _IL_SHIELD_ON);	
 							}
 							else
 							{
 								TB_SendAck(TB_ERR_NOK, 0);
+							}
+						// Shield
+						case IL_LASER:
+							// Pokud je Motor nastaven do 1 neboli true tak chce povolit laser
+							if (TB_bufIn[TB_BUF_MOTOR] == 0)
+							{
+								//Je v servisnim modu?
+								if (_IL_SHIELD_ON || _IL_CHAMBER_ON)
+								{
+									if (_IL_SERVIS_ON)
+									{
+										if (TB_Value == 1)
+										{
+											//Vypne Interlock
+											PORTA |= (1 << PA7);
+											TB_SendAck(TB_ERR_OK, 1);
+										}
+										else if (TB_Value == 0)
+										{
+											//Zapne interlock
+											PORTA &= ~(1 << PA7);
+											TB_SendAck(TB_IL_ERR, 1);
+										}
+									}
+								}
+								else
+								{
+									if (TB_Value == 1)
+									{
+										//Vypne Interlock
+										PORTA |= (1 << PA7);
+										TB_SendAck(TB_ERR_OK, 1);
+									} 
+									else if (TB_Value == 0)
+									{
+										//Zapne interlock
+										PORTA &= ~(1 << PA7);
+										TB_SendAck(TB_IL_ERR, 1);
+									}
+									else
+									{
+										TB_SendAck(TB_ERR_NOK, 0);
+									}
+								} 
+							}
+							//Nastavení Timer B v hodnotì value je hodnota timeru
+							else
+							{
+								
 							}
 							break;
 							

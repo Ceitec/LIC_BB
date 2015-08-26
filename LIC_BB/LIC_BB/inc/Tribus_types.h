@@ -91,9 +91,11 @@
 #define BB_SETMASK		4
 
 //Prikazy pouze pro interlock
+#define IL_INFO			0
 #define IL_SHIELD		1
 #define IL_SERVIS		2
 #define IL_CHAMBER		3
+#define IL_LASER		4
 
 
 // error codes
