@@ -434,24 +434,14 @@ END GROUP
  .text.__vector_6
                 0x00000c8c       0x44 LIC_BB.o
                 0x00000c8c                __vector_6
-<<<<<<< HEAD
- .text.__vector_12
-                0x00000cd0       0x64 LIC_BB.o
-                0x00000cd0                __vector_12
-=======
  .text.__vector_26
                 0x00000cd0       0x64 LIC_BB.o
                 0x00000cd0                __vector_26
->>>>>>> origin/V01
  .text.__vector_11
                 0x00000d34       0x1e LIC_BB.o
                 0x00000d34                __vector_11
  .text.process_timer_100Hz
-<<<<<<< HEAD
-                0x00000d52       0x2a LIC_BB.o
-=======
                 0x00000d52       0x1e LIC_BB.o
->>>>>>> origin/V01
                 0x00000d52                process_timer_100Hz
  .text.try_receive_data
                 0x00000d70      0x2ac LIC_BB.o
@@ -705,20 +695,12 @@ END GROUP
  .debug_abbrev  0x0000027d      0x25d inc/uart_tri_0.o
  .debug_abbrev  0x000004da      0x198 LIC_BB.o
 
-<<<<<<< HEAD
-.debug_line     0x00000000     0x12bf
-=======
 .debug_line     0x00000000     0x12b9
->>>>>>> origin/V01
  *(.debug_line .debug_line.* .debug_line_end)
  .debug_line    0x00000000       0xd1 inc/timer.o
  .debug_line    0x000000d1      0x841 inc/Tribus.o
  .debug_line    0x00000912      0x4fe inc/uart_tri_0.o
-<<<<<<< HEAD
- .debug_line    0x00000e10      0x4af LIC_BB.o
-=======
  .debug_line    0x00000e10      0x4a9 LIC_BB.o
->>>>>>> origin/V01
 
 .debug_frame    0x00000000      0x44c
  *(.debug_frame)
@@ -736,11 +718,7 @@ END GROUP
  .debug_str     0x00000370      0x3b2 inc/uart_tri_0.o
                                 0x449 (size before relaxing)
  .debug_str     0x00000722      0x13b LIC_BB.o
-<<<<<<< HEAD
-                                0x3ca (size before relaxing)
-=======
-                                0x3cb (size before relaxing)
->>>>>>> origin/V01
+                                0x3c3 (size before relaxing)
 
 .debug_loc      0x00000000      0xc13
  *(.debug_loc)

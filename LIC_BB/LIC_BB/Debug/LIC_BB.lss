@@ -17,27 +17,15 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY, DEBUGGING
   6 .debug_abbrev 00000672  00000000  00000000  00002de0  2**0
                   CONTENTS, READONLY, DEBUGGING
-<<<<<<< HEAD
-  7 .debug_line   000012bf  00000000  00000000  00003452  2**0
-=======
   7 .debug_line   000012b9  00000000  00000000  00003452  2**0
->>>>>>> origin/V01
                   CONTENTS, READONLY, DEBUGGING
   8 .debug_frame  0000044c  00000000  00000000  0000470c  2**2
                   CONTENTS, READONLY, DEBUGGING
-<<<<<<< HEAD
-  9 .debug_str    0000085d  00000000  00000000  00004b60  2**0
-                  CONTENTS, READONLY, DEBUGGING
- 10 .debug_loc    00000c13  00000000  00000000  000053bd  2**0
-                  CONTENTS, READONLY, DEBUGGING
- 11 .debug_ranges 00000158  00000000  00000000  00005fd0  2**0
-=======
   9 .debug_str    0000085d  00000000  00000000  00004b58  2**0
                   CONTENTS, READONLY, DEBUGGING
  10 .debug_loc    00000c13  00000000  00000000  000053b5  2**0
                   CONTENTS, READONLY, DEBUGGING
  11 .debug_ranges 00000158  00000000  00000000  00005fc8  2**0
->>>>>>> origin/V01
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -67,11 +55,7 @@ Disassembly of section .text:
       2a:	00 00       	nop
       2c:	83 c6       	rjmp	.+3334   	; 0xd34 <__vector_11>
       2e:	00 00       	nop
-<<<<<<< HEAD
-      30:	4f c6       	rjmp	.+3230   	; 0xcd0 <__vector_12>
-=======
       30:	56 c0       	rjmp	.+172    	; 0xde <__bad_interrupt>
->>>>>>> origin/V01
       32:	00 00       	nop
       34:	54 c0       	rjmp	.+168    	; 0xde <__bad_interrupt>
       36:	00 00       	nop
@@ -99,11 +83,7 @@ Disassembly of section .text:
       62:	00 00       	nop
       64:	3c c0       	rjmp	.+120    	; 0xde <__bad_interrupt>
       66:	00 00       	nop
-<<<<<<< HEAD
-      68:	3a c0       	rjmp	.+116    	; 0xde <__bad_interrupt>
-=======
       68:	33 c6       	rjmp	.+3174   	; 0xcd0 <__vector_26>
->>>>>>> origin/V01
       6a:	00 00       	nop
       6c:	38 c0       	rjmp	.+112    	; 0xde <__bad_interrupt>
       6e:	00 00       	nop
@@ -169,44 +149,48 @@ Disassembly of section .text:
       d2:	a7 39       	cpi	r26, 0x97	; 151
       d4:	b2 07       	cpc	r27, r18
       d6:	e1 f7       	brne	.-8      	; 0xd0 <.do_clear_bss_loop>
-<<<<<<< HEAD
-      d8:	c5 d7       	rcall	.+3978   	; 0x1064 <main>
-=======
       d8:	c4 d7       	rcall	.+3976   	; 0x1062 <main>
->>>>>>> origin/V01
       da:	0c 94 87 08 	jmp	0x110e	; 0x110e <_exit>
 
 000000de <__bad_interrupt>:
       de:	90 cf       	rjmp	.-224    	; 0x0 <__vectors>
 
 000000e0 <timer_init>:
+
+  // * Timer 1 - system timer and 2× PWM
+  // 14745600 / 256 / 576 = 100 Hz
+  //   Xtal  /presca/ TOP
+  
+  OCR1A = 0;
       e0:	1b bc       	out	0x2b, r1	; 43
       e2:	1a bc       	out	0x2a, r1	; 42
+  OCR1B = 0;
       e4:	19 bc       	out	0x29, r1	; 41
       e6:	18 bc       	out	0x28, r1	; 40
+  ICR1 = 575; 
       e8:	8f e3       	ldi	r24, 0x3F	; 63
       ea:	92 e0       	ldi	r25, 0x02	; 2
       ec:	97 bd       	out	0x27, r25	; 39
       ee:	86 bd       	out	0x26, r24	; 38
+  TCCR1A = BV(WGM11) | BV(COM1A1) | BV(COM1B1); // Fast PWM
       f0:	82 ea       	ldi	r24, 0xA2	; 162
       f2:	8f bd       	out	0x2f, r24	; 47
+  TCCR1B = BV(WGM12) | BV(WGM13) | 4; // Fast PWM + presca = 1024
       f4:	8c e1       	ldi	r24, 0x1C	; 28
       f6:	8e bd       	out	0x2e, r24	; 46
+  TIMSK |= BV(TICIE1); // capt int enabled
       f8:	87 b7       	in	r24, 0x37	; 55
       fa:	80 62       	ori	r24, 0x20	; 32
       fc:	87 bf       	out	0x37, r24	; 55
       fe:	08 95       	ret
 
 00000100 <TB_Send>:
-<<<<<<< HEAD
 	TB_bufOut[5] = Type2;
 	TB_bufOut[6] = Type1;
 	TB_bufOut[7] = Type0;
 	TB_calcSum();
 	TB_Send();
 }
-=======
->>>>>>> origin/V01
      100:	e0 91 08 01 	lds	r30, 0x0108
      104:	f0 91 09 01 	lds	r31, 0x0109
      108:	30 97       	sbiw	r30, 0x00	; 0
@@ -241,13 +225,13 @@ Disassembly of section .text:
      140:	91 e0       	ldi	r25, 0x01	; 1
      142:	ae d7       	rcall	.+3932   	; 0x10a0 <__eerd_block_m128a>
      144:	80 91 48 01 	lds	r24, 0x0148
-     148:	81 34       	cpi	r24, 0x41	; 65
+     148:	82 34       	cpi	r24, 0x42	; 66
      14a:	a1 f0       	breq	.+40     	; 0x174 <TB_Init+0x4a>
      14c:	82 e4       	ldi	r24, 0x42	; 66
      14e:	80 93 48 01 	sts	0x0148, r24
      152:	84 e0       	ldi	r24, 0x04	; 4
      154:	80 93 49 01 	sts	0x0149, r24
-     158:	83 e0       	ldi	r24, 0x03	; 3
+     158:	87 e0       	ldi	r24, 0x07	; 7
      15a:	80 93 4a 01 	sts	0x014A, r24
      15e:	10 92 4b 01 	sts	0x014B, r1
      162:	82 e0       	ldi	r24, 0x02	; 2
@@ -988,15 +972,12 @@ Disassembly of section .text:
      816:	08 95       	ret
 
 00000818 <TB_SendAckOK>:
-<<<<<<< HEAD
 
 /******************************************************/
 // send OK response from module
 inline void TB_SendAckOK(void)
 {
   TB_SendAck(100, 0);
-=======
->>>>>>> origin/V01
      818:	40 e0       	ldi	r20, 0x00	; 0
      81a:	50 e0       	ldi	r21, 0x00	; 0
      81c:	ba 01       	movw	r22, r20
@@ -1458,42 +1439,42 @@ inline void TB_SendAckOK(void)
      bd8:	08 95       	ret
 
 00000bda <send_data>:
+
+
+
+void send_data(void)
+{
+	uart0_put_data((byte *) &TB_bufOut);
      bda:	8f e3       	ldi	r24, 0x3F	; 63
      bdc:	91 e0       	ldi	r25, 0x01	; 1
      bde:	a7 cf       	rjmp	.-178    	; 0xb2e <uart0_put_data>
      be0:	08 95       	ret
 
 00000be2 <__vector_2>:
-<<<<<<< HEAD
-=======
 
 
 
 //Samotné pøerušení
 ISR(INT1_SHIELD)
 {
->>>>>>> origin/V01
      be2:	1f 92       	push	r1
      be4:	0f 92       	push	r0
      be6:	0f b6       	in	r0, 0x3f	; 63
      be8:	0f 92       	push	r0
      bea:	11 24       	eor	r1, r1
      bec:	8f 93       	push	r24
-<<<<<<< HEAD
-     bee:	82 99       	sbic	0x10, 2	; 16
-=======
 	//Zde se musí dát nastavení do log.0 pro výstup PA7 Laser IN
 	if (!_IL_SHIELD_ON)
      bee:	81 99       	sbic	0x10, 1	; 16
->>>>>>> origin/V01
      bf0:	04 c0       	rjmp	.+8      	; 0xbfa <__vector_2+0x18>
+	{
+		PORTA &= ~(1 << PA7);
      bf2:	df 98       	cbi	0x1b, 7	; 27
-<<<<<<< HEAD
-=======
 		Check_SHIELD = TRUE;
->>>>>>> origin/V01
      bf4:	81 e0       	ldi	r24, 0x01	; 1
      bf6:	80 93 95 02 	sts	0x0295, r24
+	} 
+}
      bfa:	8f 91       	pop	r24
      bfc:	0f 90       	pop	r0
      bfe:	0f be       	out	0x3f, r0	; 63
@@ -1502,14 +1483,19 @@ ISR(INT1_SHIELD)
      c04:	18 95       	reti
 
 00000c06 <__vector_3>:
+
+ISR(INT2_SERVIS)
+{
      c06:	1f 92       	push	r1
      c08:	0f 92       	push	r0
      c0a:	0f b6       	in	r0, 0x3f	; 63
      c0c:	0f 92       	push	r0
      c0e:	11 24       	eor	r1, r1
      c10:	8f 93       	push	r24
+	Check_SERVIS = TRUE;
      c12:	81 e0       	ldi	r24, 0x01	; 1
      c14:	80 93 96 02 	sts	0x0296, r24
+}
      c18:	8f 91       	pop	r24
      c1a:	0f 90       	pop	r0
      c1c:	0f be       	out	0x3f, r0	; 63
@@ -1518,23 +1504,15 @@ ISR(INT1_SHIELD)
      c22:	18 95       	reti
 
 00000c24 <__vector_4>:
-<<<<<<< HEAD
-=======
 
 ISR(INT3_CHAMBER)
 {
->>>>>>> origin/V01
      c24:	1f 92       	push	r1
      c26:	0f 92       	push	r0
      c28:	0f b6       	in	r0, 0x3f	; 63
      c2a:	0f 92       	push	r0
      c2c:	11 24       	eor	r1, r1
      c2e:	8f 93       	push	r24
-<<<<<<< HEAD
-     c30:	82 99       	sbic	0x10, 2	; 16
-     c32:	04 c0       	rjmp	.+8      	; 0xc3c <__vector_4+0x18>
-     c34:	df 98       	cbi	0x1b, 7	; 27
-=======
 	//Zde se musí dát nastavení do log.0 pro výstup PA7 Laser IN
 	if (!_IL_CHAMBER_ON)
      c30:	83 99       	sbic	0x10, 3	; 16
@@ -1543,9 +1521,10 @@ ISR(INT3_CHAMBER)
 		PORTA &= ~(1 << PA7);
      c34:	df 98       	cbi	0x1b, 7	; 27
 		Check_SHIELD = TRUE;
->>>>>>> origin/V01
      c36:	81 e0       	ldi	r24, 0x01	; 1
      c38:	80 93 95 02 	sts	0x0295, r24
+	}
+}
      c3c:	8f 91       	pop	r24
      c3e:	0f 90       	pop	r0
      c40:	0f be       	out	0x3f, r0	; 63
@@ -1554,6 +1533,9 @@ ISR(INT3_CHAMBER)
      c46:	18 95       	reti
 
 00000c48 <__vector_5>:
+
+ISR(INT4_Channel)
+{
      c48:	1f 92       	push	r1
      c4a:	0f 92       	push	r0
      c4c:	0f b6       	in	r0, 0x3f	; 63
@@ -1561,19 +1543,26 @@ ISR(INT3_CHAMBER)
      c50:	11 24       	eor	r1, r1
      c52:	8f 93       	push	r24
      c54:	9f 93       	push	r25
+	if(armed_A)
      c56:	80 91 1c 01 	lds	r24, 0x011C
      c5a:	88 23       	and	r24, r24
      c5c:	81 f0       	breq	.+32     	; 0xc7e <__vector_5+0x36>
+	{
+		timeout_A = timeout_A_max;
      c5e:	80 91 04 01 	lds	r24, 0x0104
      c62:	90 91 05 01 	lds	r25, 0x0105
      c66:	90 93 1a 01 	sts	0x011A, r25
      c6a:	80 93 19 01 	sts	0x0119, r24
+		PORTC &= ~(mask_A);
      c6e:	95 b3       	in	r25, 0x15	; 21
      c70:	80 91 01 01 	lds	r24, 0x0101
      c74:	80 95       	com	r24
      c76:	89 23       	and	r24, r25
      c78:	85 bb       	out	0x15, r24	; 21
+		armed_A = FALSE;
      c7a:	10 92 1c 01 	sts	0x011C, r1
+	}
+}
      c7e:	9f 91       	pop	r25
      c80:	8f 91       	pop	r24
      c82:	0f 90       	pop	r0
@@ -1583,6 +1572,9 @@ ISR(INT3_CHAMBER)
      c8a:	18 95       	reti
 
 00000c8c <__vector_6>:
+
+ISR(INT5_Channel)
+{
      c8c:	1f 92       	push	r1
      c8e:	0f 92       	push	r0
      c90:	0f b6       	in	r0, 0x3f	; 63
@@ -1590,19 +1582,26 @@ ISR(INT3_CHAMBER)
      c94:	11 24       	eor	r1, r1
      c96:	8f 93       	push	r24
      c98:	9f 93       	push	r25
+	if(armed_B)
      c9a:	80 91 1b 01 	lds	r24, 0x011B
      c9e:	88 23       	and	r24, r24
      ca0:	81 f0       	breq	.+32     	; 0xcc2 <__vector_6+0x36>
+	{
+		timeout_B = timeout_B_max;
      ca2:	80 91 02 01 	lds	r24, 0x0102
      ca6:	90 91 03 01 	lds	r25, 0x0103
      caa:	90 93 18 01 	sts	0x0118, r25
      cae:	80 93 17 01 	sts	0x0117, r24
+		PORTC &= ~(mask_B);
      cb2:	95 b3       	in	r25, 0x15	; 21
      cb4:	80 91 00 01 	lds	r24, 0x0100
      cb8:	80 95       	com	r24
      cba:	89 23       	and	r24, r25
      cbc:	85 bb       	out	0x15, r24	; 21
+		armed_B = FALSE;
      cbe:	10 92 1b 01 	sts	0x011B, r1
+	}
+}
      cc2:	9f 91       	pop	r25
      cc4:	8f 91       	pop	r24
      cc6:	0f 90       	pop	r0
@@ -1611,16 +1610,12 @@ ISR(INT3_CHAMBER)
      ccc:	1f 90       	pop	r1
      cce:	18 95       	reti
 
-<<<<<<< HEAD
-00000cd0 <__vector_12>:
-=======
 00000cd0 <__vector_26>:
 
 /******************************************************/
 
 ISR(TIMER3_COMPA_vect)
 {
->>>>>>> origin/V01
      cd0:	1f 92       	push	r1
      cd2:	0f 92       	push	r0
      cd4:	0f b6       	in	r0, 0x3f	; 63
@@ -1628,39 +1623,22 @@ ISR(TIMER3_COMPA_vect)
      cd8:	11 24       	eor	r1, r1
      cda:	8f 93       	push	r24
      cdc:	9f 93       	push	r25
-<<<<<<< HEAD
-     cde:	80 91 19 01 	lds	r24, 0x0119
-     ce2:	90 91 1a 01 	lds	r25, 0x011A
-     ce6:	00 97       	sbiw	r24, 0x00	; 0
-     ce8:	61 f0       	breq	.+24     	; 0xd02 <__vector_12+0x32>
-=======
 	if (timeout_A > 0) {
      cde:	80 91 19 01 	lds	r24, 0x0119
      ce2:	90 91 1a 01 	lds	r25, 0x011A
      ce6:	00 97       	sbiw	r24, 0x00	; 0
      ce8:	61 f0       	breq	.+24     	; 0xd02 <__vector_26+0x32>
 		if (--timeout_A == 0) {
->>>>>>> origin/V01
      cea:	01 97       	sbiw	r24, 0x01	; 1
      cec:	90 93 1a 01 	sts	0x011A, r25
      cf0:	80 93 19 01 	sts	0x0119, r24
      cf4:	89 2b       	or	r24, r25
-<<<<<<< HEAD
-     cf6:	29 f4       	brne	.+10     	; 0xd02 <__vector_12+0x32>
-=======
      cf6:	29 f4       	brne	.+10     	; 0xd02 <__vector_26+0x32>
 			PORTC |= mask_A;
->>>>>>> origin/V01
      cf8:	95 b3       	in	r25, 0x15	; 21
      cfa:	80 91 01 01 	lds	r24, 0x0101
      cfe:	89 2b       	or	r24, r25
      d00:	85 bb       	out	0x15, r24	; 21
-<<<<<<< HEAD
-     d02:	80 91 17 01 	lds	r24, 0x0117
-     d06:	90 91 18 01 	lds	r25, 0x0118
-     d0a:	00 97       	sbiw	r24, 0x00	; 0
-     d0c:	61 f0       	breq	.+24     	; 0xd26 <__vector_12+0x56>
-=======
 		};
 	}
 	if (timeout_B > 0) {
@@ -1669,21 +1647,19 @@ ISR(TIMER3_COMPA_vect)
      d0a:	00 97       	sbiw	r24, 0x00	; 0
      d0c:	61 f0       	breq	.+24     	; 0xd26 <__vector_26+0x56>
 		if (--timeout_B == 0) {
->>>>>>> origin/V01
      d0e:	01 97       	sbiw	r24, 0x01	; 1
      d10:	90 93 18 01 	sts	0x0118, r25
      d14:	80 93 17 01 	sts	0x0117, r24
      d18:	89 2b       	or	r24, r25
-<<<<<<< HEAD
-     d1a:	29 f4       	brne	.+10     	; 0xd26 <__vector_12+0x56>
-=======
      d1a:	29 f4       	brne	.+10     	; 0xd26 <__vector_26+0x56>
 			PORTC |= mask_B;
->>>>>>> origin/V01
      d1c:	95 b3       	in	r25, 0x15	; 21
      d1e:	80 91 00 01 	lds	r24, 0x0100
      d22:	89 2b       	or	r24, r25
      d24:	85 bb       	out	0x15, r24	; 21
+		};
+	}
+}
      d26:	9f 91       	pop	r25
      d28:	8f 91       	pop	r24
      d2a:	0f 90       	pop	r0
@@ -1693,16 +1669,18 @@ ISR(TIMER3_COMPA_vect)
      d32:	18 95       	reti
 
 00000d34 <__vector_11>:
+{
+	uart0_put_data((byte *) &TB_bufOut);
+}
+
+//----------------------------------------------------------
+ISR(TIMER1_CAPT_vect) {
      d34:	1f 92       	push	r1
      d36:	0f 92       	push	r0
      d38:	0f b6       	in	r0, 0x3f	; 63
      d3a:	0f 92       	push	r0
      d3c:	11 24       	eor	r1, r1
      d3e:	8f 93       	push	r24
-<<<<<<< HEAD
-     d40:	81 e0       	ldi	r24, 0x01	; 1
-     d42:	80 93 16 01 	sts	0x0116, r24
-=======
 	// T = 10ms
 	
 	timer0_flag = TRUE;
@@ -1710,7 +1688,6 @@ ISR(TIMER3_COMPA_vect)
      d42:	80 93 16 01 	sts	0x0116, r24
 	
 }
->>>>>>> origin/V01
      d46:	8f 91       	pop	r24
      d48:	0f 90       	pop	r0
      d4a:	0f be       	out	0x3f, r0	; 63
@@ -1719,11 +1696,6 @@ ISR(TIMER3_COMPA_vect)
      d50:	18 95       	reti
 
 00000d52 <process_timer_100Hz>:
-<<<<<<< HEAD
-     d52:	80 91 16 01 	lds	r24, 0x0116
-     d56:	88 23       	and	r24, r24
-     d58:	81 f0       	breq	.+32     	; 0xd7a <process_timer_100Hz+0x28>
-=======
 
 //----------------------------------------------------------
 void process_timer_100Hz(void)
@@ -1733,302 +1705,9 @@ void process_timer_100Hz(void)
      d56:	88 23       	and	r24, r24
      d58:	51 f0       	breq	.+20     	; 0xd6e <process_timer_100Hz+0x1c>
 		timer0_flag = false;
->>>>>>> origin/V01
      d5a:	10 92 16 01 	sts	0x0116, r1
+		uart0_ISR_timer();
      d5e:	ab de       	rcall	.-682    	; 0xab6 <uart0_ISR_timer>
-<<<<<<< HEAD
-     d60:	80 91 15 01 	lds	r24, 0x0115
-     d64:	88 23       	and	r24, r24
-     d66:	49 f0       	breq	.+18     	; 0xd7a <process_timer_100Hz+0x28>
-     d68:	81 50       	subi	r24, 0x01	; 1
-     d6a:	80 93 15 01 	sts	0x0115, r24
-     d6e:	81 11       	cpse	r24, r1
-     d70:	04 c0       	rjmp	.+8      	; 0xd7a <process_timer_100Hz+0x28>
-     d72:	98 b3       	in	r25, 0x18	; 24
-     d74:	80 e1       	ldi	r24, 0x10	; 16
-     d76:	89 27       	eor	r24, r25
-     d78:	88 bb       	out	0x18, r24	; 24
-     d7a:	08 95       	ret
-
-00000d7c <try_receive_data>:
-     d7c:	80 91 0b 01 	lds	r24, 0x010B
-     d80:	83 ff       	sbrs	r24, 3
-     d82:	51 c1       	rjmp	.+674    	; 0x1026 <try_receive_data+0x2aa>
-     d84:	b0 de       	rcall	.-672    	; 0xae6 <uart0_get_data_begin>
-     d86:	dc 01       	movw	r26, r24
-     d88:	ef e4       	ldi	r30, 0x4F	; 79
-     d8a:	f1 e0       	ldi	r31, 0x01	; 1
-     d8c:	88 e5       	ldi	r24, 0x58	; 88
-     d8e:	91 e0       	ldi	r25, 0x01	; 1
-     d90:	2d 91       	ld	r18, X+
-     d92:	21 93       	st	Z+, r18
-     d94:	e8 17       	cp	r30, r24
-     d96:	f9 07       	cpc	r31, r25
-     d98:	d9 f7       	brne	.-10     	; 0xd90 <try_receive_data+0x14>
-     d9a:	b6 de       	rcall	.-660    	; 0xb08 <uart0_get_data_end>
-     d9c:	80 91 0b 01 	lds	r24, 0x010B
-     da0:	87 7f       	andi	r24, 0xF7	; 247
-     da2:	80 93 0b 01 	sts	0x010B, r24
-     da6:	13 da       	rcall	.-3034   	; 0x1ce <TB_Read>
-     da8:	81 11       	cpse	r24, r1
-     daa:	3d c1       	rjmp	.+634    	; 0x1026 <try_receive_data+0x2aa>
-     dac:	2f da       	rcall	.-2978   	; 0x20c <TB_Decode>
-     dae:	82 31       	cpi	r24, 0x12	; 18
-     db0:	21 f0       	breq	.+8      	; 0xdba <try_receive_data+0x3e>
-     db2:	8c 31       	cpi	r24, 0x1C	; 28
-     db4:	09 f4       	brne	.+2      	; 0xdb8 <try_receive_data+0x3c>
-     db6:	b8 c0       	rjmp	.+368    	; 0xf28 <try_receive_data+0x1ac>
-     db8:	08 95       	ret
-     dba:	80 91 51 01 	lds	r24, 0x0151
-     dbe:	82 30       	cpi	r24, 0x02	; 2
-     dc0:	09 f4       	brne	.+2      	; 0xdc4 <try_receive_data+0x48>
-     dc2:	42 c0       	rjmp	.+132    	; 0xe48 <try_receive_data+0xcc>
-     dc4:	18 f4       	brcc	.+6      	; 0xdcc <try_receive_data+0x50>
-     dc6:	81 30       	cpi	r24, 0x01	; 1
-     dc8:	41 f0       	breq	.+16     	; 0xdda <try_receive_data+0x5e>
-     dca:	08 95       	ret
-     dcc:	83 30       	cpi	r24, 0x03	; 3
-     dce:	09 f4       	brne	.+2      	; 0xdd2 <try_receive_data+0x56>
-     dd0:	53 c0       	rjmp	.+166    	; 0xe78 <try_receive_data+0xfc>
-     dd2:	84 30       	cpi	r24, 0x04	; 4
-     dd4:	09 f4       	brne	.+2      	; 0xdd8 <try_receive_data+0x5c>
-     dd6:	82 c0       	rjmp	.+260    	; 0xedc <try_receive_data+0x160>
-     dd8:	08 95       	ret
-     dda:	80 91 52 01 	lds	r24, 0x0152
-     dde:	88 23       	and	r24, r24
-     de0:	19 f0       	breq	.+6      	; 0xde8 <try_receive_data+0x6c>
-     de2:	81 30       	cpi	r24, 0x01	; 1
-     de4:	b1 f0       	breq	.+44     	; 0xe12 <try_receive_data+0x96>
-     de6:	2a c0       	rjmp	.+84     	; 0xe3c <try_receive_data+0xc0>
-     de8:	40 91 3b 01 	lds	r20, 0x013B
-     dec:	50 91 3c 01 	lds	r21, 0x013C
-     df0:	60 91 3d 01 	lds	r22, 0x013D
-     df4:	70 91 3e 01 	lds	r23, 0x013E
-     df8:	41 30       	cpi	r20, 0x01	; 1
-     dfa:	51 05       	cpc	r21, r1
-     dfc:	61 05       	cpc	r22, r1
-     dfe:	71 05       	cpc	r23, r1
-     e00:	29 f4       	brne	.+10     	; 0xe0c <try_receive_data+0x90>
-     e02:	81 e0       	ldi	r24, 0x01	; 1
-     e04:	80 93 1c 01 	sts	0x011C, r24
-     e08:	07 cd       	rjmp	.-1522   	; 0x818 <TB_SendAckOK>
-     e0a:	08 95       	ret
-     e0c:	86 e6       	ldi	r24, 0x66	; 102
-     e0e:	c6 c9       	rjmp	.-3188   	; 0x19c <TB_SendAck>
-     e10:	08 95       	ret
-     e12:	40 91 3b 01 	lds	r20, 0x013B
-     e16:	50 91 3c 01 	lds	r21, 0x013C
-     e1a:	60 91 3d 01 	lds	r22, 0x013D
-     e1e:	70 91 3e 01 	lds	r23, 0x013E
-     e22:	41 30       	cpi	r20, 0x01	; 1
-     e24:	51 05       	cpc	r21, r1
-     e26:	61 05       	cpc	r22, r1
-     e28:	71 05       	cpc	r23, r1
-     e2a:	29 f4       	brne	.+10     	; 0xe36 <try_receive_data+0xba>
-     e2c:	81 e0       	ldi	r24, 0x01	; 1
-     e2e:	80 93 1b 01 	sts	0x011B, r24
-     e32:	f2 cc       	rjmp	.-1564   	; 0x818 <TB_SendAckOK>
-     e34:	08 95       	ret
-     e36:	86 e6       	ldi	r24, 0x66	; 102
-     e38:	b1 c9       	rjmp	.-3230   	; 0x19c <TB_SendAck>
-     e3a:	08 95       	ret
-     e3c:	40 e0       	ldi	r20, 0x00	; 0
-     e3e:	50 e0       	ldi	r21, 0x00	; 0
-     e40:	ba 01       	movw	r22, r20
-     e42:	86 e6       	ldi	r24, 0x66	; 102
-     e44:	ab c9       	rjmp	.-3242   	; 0x19c <TB_SendAck>
-     e46:	08 95       	ret
-     e48:	80 91 52 01 	lds	r24, 0x0152
-     e4c:	81 11       	cpse	r24, r1
-     e4e:	08 c0       	rjmp	.+16     	; 0xe60 <try_receive_data+0xe4>
-     e50:	85 b3       	in	r24, 0x15	; 21
-     e52:	90 91 53 01 	lds	r25, 0x0153
-     e56:	90 7f       	andi	r25, 0xF0	; 240
-     e58:	89 2b       	or	r24, r25
-     e5a:	85 bb       	out	0x15, r24	; 21
-     e5c:	dd cc       	rjmp	.-1606   	; 0x818 <TB_SendAckOK>
-     e5e:	08 95       	ret
-     e60:	81 30       	cpi	r24, 0x01	; 1
-     e62:	09 f0       	breq	.+2      	; 0xe66 <try_receive_data+0xea>
-     e64:	e0 c0       	rjmp	.+448    	; 0x1026 <try_receive_data+0x2aa>
-     e66:	85 b3       	in	r24, 0x15	; 21
-     e68:	90 91 53 01 	lds	r25, 0x0153
-     e6c:	90 7f       	andi	r25, 0xF0	; 240
-     e6e:	90 95       	com	r25
-     e70:	89 23       	and	r24, r25
-     e72:	85 bb       	out	0x15, r24	; 21
-     e74:	d1 cc       	rjmp	.-1630   	; 0x818 <TB_SendAckOK>
-     e76:	08 95       	ret
-     e78:	80 91 52 01 	lds	r24, 0x0152
-     e7c:	81 11       	cpse	r24, r1
-     e7e:	13 c0       	rjmp	.+38     	; 0xea6 <try_receive_data+0x12a>
-     e80:	40 91 3b 01 	lds	r20, 0x013B
-     e84:	50 91 3c 01 	lds	r21, 0x013C
-     e88:	60 91 3d 01 	lds	r22, 0x013D
-     e8c:	70 91 3e 01 	lds	r23, 0x013E
-     e90:	b6 2f       	mov	r27, r22
-     e92:	a5 2f       	mov	r26, r21
-     e94:	94 2f       	mov	r25, r20
-     e96:	88 27       	eor	r24, r24
-     e98:	90 93 05 01 	sts	0x0105, r25
-     e9c:	80 93 04 01 	sts	0x0104, r24
-     ea0:	84 e6       	ldi	r24, 0x64	; 100
-     ea2:	7c c9       	rjmp	.-3336   	; 0x19c <TB_SendAck>
-     ea4:	08 95       	ret
-     ea6:	81 30       	cpi	r24, 0x01	; 1
-     ea8:	99 f4       	brne	.+38     	; 0xed0 <try_receive_data+0x154>
-     eaa:	40 91 3b 01 	lds	r20, 0x013B
-     eae:	50 91 3c 01 	lds	r21, 0x013C
-     eb2:	60 91 3d 01 	lds	r22, 0x013D
-     eb6:	70 91 3e 01 	lds	r23, 0x013E
-     eba:	b6 2f       	mov	r27, r22
-     ebc:	a5 2f       	mov	r26, r21
-     ebe:	94 2f       	mov	r25, r20
-     ec0:	88 27       	eor	r24, r24
-     ec2:	90 93 03 01 	sts	0x0103, r25
-     ec6:	80 93 02 01 	sts	0x0102, r24
-     eca:	84 e6       	ldi	r24, 0x64	; 100
-     ecc:	67 c9       	rjmp	.-3378   	; 0x19c <TB_SendAck>
-     ece:	08 95       	ret
-     ed0:	40 e0       	ldi	r20, 0x00	; 0
-     ed2:	50 e0       	ldi	r21, 0x00	; 0
-     ed4:	ba 01       	movw	r22, r20
-     ed6:	86 e6       	ldi	r24, 0x66	; 102
-     ed8:	61 c9       	rjmp	.-3390   	; 0x19c <TB_SendAck>
-     eda:	08 95       	ret
-     edc:	80 91 52 01 	lds	r24, 0x0152
-     ee0:	81 11       	cpse	r24, r1
-     ee2:	0d c0       	rjmp	.+26     	; 0xefe <try_receive_data+0x182>
-     ee4:	10 92 01 01 	sts	0x0101, r1
-     ee8:	40 91 3b 01 	lds	r20, 0x013B
-     eec:	50 91 3c 01 	lds	r21, 0x013C
-     ef0:	60 91 3d 01 	lds	r22, 0x013D
-     ef4:	70 91 3e 01 	lds	r23, 0x013E
-     ef8:	84 e6       	ldi	r24, 0x64	; 100
-     efa:	50 c9       	rjmp	.-3424   	; 0x19c <TB_SendAck>
-     efc:	08 95       	ret
-     efe:	81 30       	cpi	r24, 0x01	; 1
-     f00:	69 f4       	brne	.+26     	; 0xf1c <try_receive_data+0x1a0>
-     f02:	10 92 00 01 	sts	0x0100, r1
-     f06:	40 91 3b 01 	lds	r20, 0x013B
-     f0a:	50 91 3c 01 	lds	r21, 0x013C
-     f0e:	60 91 3d 01 	lds	r22, 0x013D
-     f12:	70 91 3e 01 	lds	r23, 0x013E
-     f16:	84 e6       	ldi	r24, 0x64	; 100
-     f18:	41 c9       	rjmp	.-3454   	; 0x19c <TB_SendAck>
-     f1a:	08 95       	ret
-     f1c:	40 e0       	ldi	r20, 0x00	; 0
-     f1e:	50 e0       	ldi	r21, 0x00	; 0
-     f20:	ba 01       	movw	r22, r20
-     f22:	86 e6       	ldi	r24, 0x66	; 102
-     f24:	3b c9       	rjmp	.-3466   	; 0x19c <TB_SendAck>
-     f26:	08 95       	ret
-     f28:	80 91 51 01 	lds	r24, 0x0151
-     f2c:	88 23       	and	r24, r24
-     f2e:	19 f0       	breq	.+6      	; 0xf36 <try_receive_data+0x1ba>
-     f30:	84 30       	cpi	r24, 0x04	; 4
-     f32:	11 f1       	breq	.+68     	; 0xf78 <try_receive_data+0x1fc>
-     f34:	73 c0       	rjmp	.+230    	; 0x101c <try_receive_data+0x2a0>
-     f36:	80 91 52 01 	lds	r24, 0x0152
-     f3a:	81 11       	cpse	r24, r1
-     f3c:	08 c0       	rjmp	.+16     	; 0xf4e <try_receive_data+0x1d2>
-     f3e:	40 b3       	in	r20, 0x10	; 16
-     f40:	44 70       	andi	r20, 0x04	; 4
-     f42:	50 e0       	ldi	r21, 0x00	; 0
-     f44:	60 e0       	ldi	r22, 0x00	; 0
-     f46:	70 e0       	ldi	r23, 0x00	; 0
-     f48:	84 e6       	ldi	r24, 0x64	; 100
-     f4a:	28 d9       	rcall	.-3504   	; 0x19c <TB_SendAck>
-     f4c:	15 c0       	rjmp	.+42     	; 0xf78 <try_receive_data+0x1fc>
-     f4e:	81 30       	cpi	r24, 0x01	; 1
-     f50:	71 f4       	brne	.+28     	; 0xf6e <try_receive_data+0x1f2>
-     f52:	80 b3       	in	r24, 0x10	; 16
-     f54:	40 b3       	in	r20, 0x10	; 16
-     f56:	88 70       	andi	r24, 0x08	; 8
-     f58:	42 70       	andi	r20, 0x02	; 2
-     f5a:	50 e0       	ldi	r21, 0x00	; 0
-     f5c:	48 0f       	add	r20, r24
-     f5e:	51 1d       	adc	r21, r1
-     f60:	66 27       	eor	r22, r22
-     f62:	57 fd       	sbrc	r21, 7
-     f64:	60 95       	com	r22
-     f66:	76 2f       	mov	r23, r22
-     f68:	84 e6       	ldi	r24, 0x64	; 100
-     f6a:	18 d9       	rcall	.-3536   	; 0x19c <TB_SendAck>
-     f6c:	05 c0       	rjmp	.+10     	; 0xf78 <try_receive_data+0x1fc>
-     f6e:	40 e0       	ldi	r20, 0x00	; 0
-     f70:	50 e0       	ldi	r21, 0x00	; 0
-     f72:	ba 01       	movw	r22, r20
-     f74:	86 e6       	ldi	r24, 0x66	; 102
-     f76:	12 d9       	rcall	.-3548   	; 0x19c <TB_SendAck>
-     f78:	80 91 52 01 	lds	r24, 0x0152
-     f7c:	81 11       	cpse	r24, r1
-     f7e:	53 c0       	rjmp	.+166    	; 0x1026 <try_receive_data+0x2aa>
-     f80:	81 99       	sbic	0x10, 1	; 16
-     f82:	02 c0       	rjmp	.+4      	; 0xf88 <try_receive_data+0x20c>
-     f84:	83 9b       	sbis	0x10, 3	; 16
-     f86:	23 c0       	rjmp	.+70     	; 0xfce <try_receive_data+0x252>
-     f88:	82 9b       	sbis	0x10, 2	; 16
-     f8a:	4d c0       	rjmp	.+154    	; 0x1026 <try_receive_data+0x2aa>
-     f8c:	80 91 3b 01 	lds	r24, 0x013B
-     f90:	90 91 3c 01 	lds	r25, 0x013C
-     f94:	a0 91 3d 01 	lds	r26, 0x013D
-     f98:	b0 91 3e 01 	lds	r27, 0x013E
-     f9c:	81 30       	cpi	r24, 0x01	; 1
-     f9e:	91 05       	cpc	r25, r1
-     fa0:	a1 05       	cpc	r26, r1
-     fa2:	b1 05       	cpc	r27, r1
-     fa4:	41 f4       	brne	.+16     	; 0xfb6 <try_receive_data+0x23a>
-     fa6:	df 9a       	sbi	0x1b, 7	; 27
-     fa8:	41 e0       	ldi	r20, 0x01	; 1
-     faa:	50 e0       	ldi	r21, 0x00	; 0
-     fac:	60 e0       	ldi	r22, 0x00	; 0
-     fae:	70 e0       	ldi	r23, 0x00	; 0
-     fb0:	84 e6       	ldi	r24, 0x64	; 100
-     fb2:	f4 c8       	rjmp	.-3608   	; 0x19c <TB_SendAck>
-     fb4:	08 95       	ret
-     fb6:	89 2b       	or	r24, r25
-     fb8:	8a 2b       	or	r24, r26
-     fba:	8b 2b       	or	r24, r27
-     fbc:	a1 f5       	brne	.+104    	; 0x1026 <try_receive_data+0x2aa>
-     fbe:	df 98       	cbi	0x1b, 7	; 27
-     fc0:	41 e0       	ldi	r20, 0x01	; 1
-     fc2:	50 e0       	ldi	r21, 0x00	; 0
-     fc4:	60 e0       	ldi	r22, 0x00	; 0
-     fc6:	70 e0       	ldi	r23, 0x00	; 0
-     fc8:	8c e0       	ldi	r24, 0x0C	; 12
-     fca:	e8 c8       	rjmp	.-3632   	; 0x19c <TB_SendAck>
-     fcc:	08 95       	ret
-     fce:	80 91 3b 01 	lds	r24, 0x013B
-     fd2:	90 91 3c 01 	lds	r25, 0x013C
-     fd6:	a0 91 3d 01 	lds	r26, 0x013D
-     fda:	b0 91 3e 01 	lds	r27, 0x013E
-     fde:	81 30       	cpi	r24, 0x01	; 1
-     fe0:	91 05       	cpc	r25, r1
-     fe2:	a1 05       	cpc	r26, r1
-     fe4:	b1 05       	cpc	r27, r1
-     fe6:	41 f4       	brne	.+16     	; 0xff8 <try_receive_data+0x27c>
-     fe8:	df 9a       	sbi	0x1b, 7	; 27
-     fea:	41 e0       	ldi	r20, 0x01	; 1
-     fec:	50 e0       	ldi	r21, 0x00	; 0
-     fee:	60 e0       	ldi	r22, 0x00	; 0
-     ff0:	70 e0       	ldi	r23, 0x00	; 0
-     ff2:	84 e6       	ldi	r24, 0x64	; 100
-     ff4:	d3 c8       	rjmp	.-3674   	; 0x19c <TB_SendAck>
-     ff6:	08 95       	ret
-     ff8:	89 2b       	or	r24, r25
-     ffa:	8a 2b       	or	r24, r26
-     ffc:	8b 2b       	or	r24, r27
-     ffe:	41 f4       	brne	.+16     	; 0x1010 <try_receive_data+0x294>
-    1000:	df 98       	cbi	0x1b, 7	; 27
-    1002:	41 e0       	ldi	r20, 0x01	; 1
-    1004:	50 e0       	ldi	r21, 0x00	; 0
-    1006:	60 e0       	ldi	r22, 0x00	; 0
-    1008:	70 e0       	ldi	r23, 0x00	; 0
-    100a:	8c e0       	ldi	r24, 0x0C	; 12
-    100c:	c7 c8       	rjmp	.-3698   	; 0x19c <TB_SendAck>
-    100e:	08 95       	ret
-=======
 		if (led_timer > 0) {
      d60:	80 91 15 01 	lds	r24, 0x0115
      d64:	88 23       	and	r24, r24
@@ -2323,11 +2002,11 @@ void try_receive_data(void)
      f16:	86 e6       	ldi	r24, 0x66	; 102
      f18:	41 c9       	rjmp	.-3454   	; 0x19c <TB_SendAck>
      f1a:	08 95       	ret
-					}
-					break;
-					
-					
-				case TB_CMD_INTERLOCK:
+				/*
+				Musím udìlat že pokud Servis_ON je v 1 tedy je povoleno otevírání dveøí a komory
+				Pokud je Shield v 1
+				
+				*/
 					switch (TB_bufIn[TB_BUF_TYPE])
      f1c:	80 91 51 01 	lds	r24, 0x0151
      f20:	88 23       	and	r24, r24
@@ -2497,64 +2176,18 @@ void try_receive_data(void)
     100a:	86 e6       	ldi	r24, 0x66	; 102
     100c:	c7 c8       	rjmp	.-3698   	; 0x19c <TB_SendAck>
     100e:	08 95       	ret
-								}
 							}
+						
 							break;
 							
 						default:
 							TB_SendAck(TB_ERR_NOK, 0);
->>>>>>> origin/V01
     1010:	40 e0       	ldi	r20, 0x00	; 0
     1012:	50 e0       	ldi	r21, 0x00	; 0
     1014:	ba 01       	movw	r22, r20
     1016:	86 e6       	ldi	r24, 0x66	; 102
     1018:	c1 c8       	rjmp	.-3710   	; 0x19c <TB_SendAck>
     101a:	08 95       	ret
-<<<<<<< HEAD
-    101c:	40 e0       	ldi	r20, 0x00	; 0
-    101e:	50 e0       	ldi	r21, 0x00	; 0
-    1020:	ba 01       	movw	r22, r20
-    1022:	86 e6       	ldi	r24, 0x66	; 102
-    1024:	bb c8       	rjmp	.-3722   	; 0x19c <TB_SendAck>
-    1026:	08 95       	ret
-
-00001028 <PreruseniBlackBox_Init>:
-    1028:	81 b3       	in	r24, 0x11	; 17
-    102a:	81 6f       	ori	r24, 0xF1	; 241
-    102c:	81 bb       	out	0x11, r24	; 17
-    102e:	8a b3       	in	r24, 0x1a	; 26
-    1030:	8f 68       	ori	r24, 0x8F	; 143
-    1032:	8a bb       	out	0x1a, r24	; 26
-    1034:	8f ef       	ldi	r24, 0xFF	; 255
-    1036:	8b bb       	out	0x1b, r24	; 27
-    1038:	ea e6       	ldi	r30, 0x6A	; 106
-    103a:	f0 e0       	ldi	r31, 0x00	; 0
-    103c:	80 81       	ld	r24, Z
-    103e:	8c 60       	ori	r24, 0x0C	; 12
-    1040:	80 83       	st	Z, r24
-    1042:	80 81       	ld	r24, Z
-    1044:	80 63       	ori	r24, 0x30	; 48
-    1046:	80 83       	st	Z, r24
-    1048:	80 81       	ld	r24, Z
-    104a:	80 6c       	ori	r24, 0xC0	; 192
-    104c:	80 83       	st	Z, r24
-    104e:	1f bc       	out	0x2f, r1	; 47
-    1050:	89 e0       	ldi	r24, 0x09	; 9
-    1052:	8e bd       	out	0x2e, r24	; 46
-    1054:	82 ec       	ldi	r24, 0xC2	; 194
-    1056:	95 e0       	ldi	r25, 0x05	; 5
-    1058:	9b bd       	out	0x2b, r25	; 43
-    105a:	8a bd       	out	0x2a, r24	; 42
-    105c:	89 b7       	in	r24, 0x39	; 57
-    105e:	8e 63       	ori	r24, 0x3E	; 62
-    1060:	89 bf       	out	0x39, r24	; 57
-    1062:	08 95       	ret
-
-00001064 <main>:
-    1064:	88 9a       	sbi	0x11, 0	; 17
-    1066:	e0 df       	rcall	.-64     	; 0x1028 <PreruseniBlackBox_Init>
-    1068:	3b d8       	rcall	.-3978   	; 0xe0 <timer_init>
-=======
 
 0000101c <PreruseniBlackBox_Init>:
 
@@ -2636,30 +2269,35 @@ int main(void)
     1068:	3b d8       	rcall	.-3978   	; 0xe0 <timer_init>
 	
 	uart0_init();
->>>>>>> origin/V01
     106a:	8a dc       	rcall	.-1772   	; 0x980 <uart0_init>
+	TB_Callback_setBaud = &uart0_set_baud;
     106c:	82 ec       	ldi	r24, 0xC2	; 194
     106e:	95 e0       	ldi	r25, 0x05	; 5
     1070:	90 93 07 01 	sts	0x0107, r25
     1074:	80 93 06 01 	sts	0x0106, r24
+	TB_Callback_TX = &send_data;
     1078:	8d ee       	ldi	r24, 0xED	; 237
     107a:	95 e0       	ldi	r25, 0x05	; 5
     107c:	90 93 09 01 	sts	0x0109, r25
     1080:	80 93 08 01 	sts	0x0108, r24
+	TB_Init((void*) 0x10); // addr in eeprom with settings
     1084:	80 e1       	ldi	r24, 0x10	; 16
     1086:	90 e0       	ldi	r25, 0x00	; 0
     1088:	50 d8       	rcall	.-3936   	; 0x12a <TB_Init>
+	
+	sei();
     108a:	78 94       	sei
+	
+    while(1)
+    {
+		
+		process_timer_100Hz();
     108c:	62 de       	rcall	.-828    	; 0xd52 <process_timer_100Hz>
+		uart0_process();
     108e:	84 dc       	rcall	.-1784   	; 0x998 <uart0_process>
-<<<<<<< HEAD
-    1090:	75 de       	rcall	.-790    	; 0xd7c <try_receive_data>
-    1092:	fc cf       	rjmp	.-8      	; 0x108c <main+0x28>
-=======
 		try_receive_data();
     1090:	6f de       	rcall	.-802    	; 0xd70 <try_receive_data>
     1092:	fc cf       	rjmp	.-8      	; 0x108c <main+0x2a>
->>>>>>> origin/V01
 
 00001094 <__tablejump2__>:
     1094:	ee 0f       	add	r30, r30
