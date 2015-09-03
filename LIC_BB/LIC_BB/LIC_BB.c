@@ -276,7 +276,13 @@ void try_receive_data(void)
 							break;
 					}
 					break;
-					
+				/*
+				Musím udìlat že pokud Servis_ON je v 1 tedy je povoleno otevírání dveøí a komory
+				Pokud je Shield v 1
+				
+				*/
+				
+				// Doufam že toto tam bude
 					
 				case TB_CMD_INTERLOCK:
 				/*
