@@ -279,6 +279,11 @@ void try_receive_data(void)
 					
 					
 				case TB_CMD_INTERLOCK:
+				/*
+				Musím udìlat že pokud Servis_ON je v 1 tedy je povoleno otevírání dveøí a komory
+				Pokud je Shield v 1
+				
+				*/
 					switch (TB_bufIn[TB_BUF_TYPE])
 					{
 						//info
@@ -300,11 +305,8 @@ void try_receive_data(void)
 							// Pokud je Motor nastaven do 1 neboli true tak chce povolit laser
 							if (TB_bufIn[TB_BUF_MOTOR] == 0)
 							{
-<<<<<<< HEAD
 								//Je v servisnim modu?
-=======
 								// Pokud zjistíme že je zavøen kryt aj komora
->>>>>>> origin/V01
 								if (_IL_SHIELD_ON || _IL_CHAMBER_ON)
 								{
 									if (_IL_SERVIS_ON)
@@ -343,19 +345,19 @@ void try_receive_data(void)
 									}
 <<<<<<< HEAD
 								} 
-=======
-								}
 								else
 								{
 									PORTA &= ~(1 << PA7);
 									TB_SendAck(TB_ERR_OK, 0);
 								}
->>>>>>> origin/V01
 							}
 							//Nastavení Timer B v hodnotì value je hodnota timeru
 							else
 							{
 								
+=======
+								}
+>>>>>>> origin/V01
 							}
 							break;
 							
