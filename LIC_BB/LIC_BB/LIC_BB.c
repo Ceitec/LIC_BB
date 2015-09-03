@@ -343,22 +343,10 @@ void try_receive_data(void)
 									{
 										TB_SendAck(TB_ERR_NOK, 0);
 									}
-<<<<<<< HEAD
+
 								} 
-								else
-								{
-									PORTA &= ~(1 << PA7);
-									TB_SendAck(TB_ERR_OK, 0);
-								}
 							}
-							//Nastavení Timer B v hodnotì value je hodnota timeru
-							else
-							{
-								
-=======
-								}
->>>>>>> origin/V01
-							}
+						
 							break;
 							
 						default:
