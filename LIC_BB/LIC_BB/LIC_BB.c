@@ -300,11 +300,8 @@ void try_receive_data(void)
 							// Pokud je Motor nastaven do 1 neboli true tak chce povolit laser
 							if (TB_bufIn[TB_BUF_MOTOR] == 0)
 							{
-<<<<<<< HEAD
 								//Je v servisnim modu?
-=======
 								// Pokud zjistíme že je zavøen kryt aj komora
->>>>>>> origin/V01
 								if (_IL_SHIELD_ON || _IL_CHAMBER_ON)
 								{
 									if (_IL_SERVIS_ON)
@@ -341,21 +338,7 @@ void try_receive_data(void)
 									{
 										TB_SendAck(TB_ERR_NOK, 0);
 									}
-<<<<<<< HEAD
-								} 
-=======
 								}
-								else
-								{
-									PORTA &= ~(1 << PA7);
-									TB_SendAck(TB_ERR_OK, 0);
-								}
->>>>>>> origin/V01
-							}
-							//Nastavení Timer B v hodnotì value je hodnota timeru
-							else
-							{
-								
 							}
 							break;
 							
