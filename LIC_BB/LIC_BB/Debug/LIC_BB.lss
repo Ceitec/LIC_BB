@@ -156,24 +156,41 @@ Disassembly of section .text:
       de:	90 cf       	rjmp	.-224    	; 0x0 <__vectors>
 
 000000e0 <timer_init>:
+
+  // * Timer 1 - system timer and 2× PWM
+  // 14745600 / 256 / 576 = 100 Hz
+  //   Xtal  /presca/ TOP
+  
+  OCR1A = 0;
       e0:	1b bc       	out	0x2b, r1	; 43
       e2:	1a bc       	out	0x2a, r1	; 42
+  OCR1B = 0;
       e4:	19 bc       	out	0x29, r1	; 41
       e6:	18 bc       	out	0x28, r1	; 40
+  ICR1 = 575; 
       e8:	8f e3       	ldi	r24, 0x3F	; 63
       ea:	92 e0       	ldi	r25, 0x02	; 2
       ec:	97 bd       	out	0x27, r25	; 39
       ee:	86 bd       	out	0x26, r24	; 38
+  TCCR1A = BV(WGM11) | BV(COM1A1) | BV(COM1B1); // Fast PWM
       f0:	82 ea       	ldi	r24, 0xA2	; 162
       f2:	8f bd       	out	0x2f, r24	; 47
+  TCCR1B = BV(WGM12) | BV(WGM13) | 4; // Fast PWM + presca = 1024
       f4:	8c e1       	ldi	r24, 0x1C	; 28
       f6:	8e bd       	out	0x2e, r24	; 46
+  TIMSK |= BV(TICIE1); // capt int enabled
       f8:	87 b7       	in	r24, 0x37	; 55
       fa:	80 62       	ori	r24, 0x20	; 32
       fc:	87 bf       	out	0x37, r24	; 55
       fe:	08 95       	ret
 
 00000100 <TB_Send>:
+	TB_bufOut[5] = Type2;
+	TB_bufOut[6] = Type1;
+	TB_bufOut[7] = Type0;
+	TB_calcSum();
+	TB_Send();
+}
      100:	e0 91 08 01 	lds	r30, 0x0108
      104:	f0 91 09 01 	lds	r31, 0x0109
      108:	30 97       	sbiw	r30, 0x00	; 0
@@ -208,13 +225,13 @@ Disassembly of section .text:
      140:	91 e0       	ldi	r25, 0x01	; 1
      142:	ae d7       	rcall	.+3932   	; 0x10a0 <__eerd_block_m128a>
      144:	80 91 48 01 	lds	r24, 0x0148
-     148:	81 34       	cpi	r24, 0x41	; 65
+     148:	82 34       	cpi	r24, 0x42	; 66
      14a:	a1 f0       	breq	.+40     	; 0x174 <TB_Init+0x4a>
      14c:	82 e4       	ldi	r24, 0x42	; 66
      14e:	80 93 48 01 	sts	0x0148, r24
      152:	84 e0       	ldi	r24, 0x04	; 4
      154:	80 93 49 01 	sts	0x0149, r24
-     158:	83 e0       	ldi	r24, 0x03	; 3
+     158:	87 e0       	ldi	r24, 0x07	; 7
      15a:	80 93 4a 01 	sts	0x014A, r24
      15e:	10 92 4b 01 	sts	0x014B, r1
      162:	82 e0       	ldi	r24, 0x02	; 2
@@ -955,6 +972,12 @@ Disassembly of section .text:
      816:	08 95       	ret
 
 00000818 <TB_SendAckOK>:
+
+/******************************************************/
+// send OK response from module
+inline void TB_SendAckOK(void)
+{
+  TB_SendAck(100, 0);
      818:	40 e0       	ldi	r20, 0x00	; 0
      81a:	50 e0       	ldi	r21, 0x00	; 0
      81c:	ba 01       	movw	r22, r20
@@ -963,158 +986,76 @@ Disassembly of section .text:
      822:	08 95       	ret
 
 00000824 <uart_get_char>:
-  return 9;
-}
-
-inline byte uart_rx_empty(void)
-{
-  return (uart0_buf_rx_ptr_e == uart0_buf_rx_ptr_b);
      824:	90 91 13 01 	lds	r25, 0x0113
      828:	80 91 14 01 	lds	r24, 0x0114
-  // read     -> b++, read *b
-  // interrupt safe -> read *(b+1); b++
-  byte ptr;
-  byte res;
-  
-  if (uart_rx_empty()) return 0;
      82c:	98 17       	cp	r25, r24
      82e:	61 f0       	breq	.+24     	; 0x848 <uart_get_char+0x24>
-
-  ptr = (uart0_buf_rx_ptr_b+1) & UART0_BUFFER_LINEAR_SIZE_MAX;
      830:	90 91 14 01 	lds	r25, 0x0114
      834:	9f 5f       	subi	r25, 0xFF	; 255
      836:	9f 70       	andi	r25, 0x0F	; 15
-  res = uart0_buf_rx[ptr];
      838:	e9 2f       	mov	r30, r25
      83a:	f0 e0       	ldi	r31, 0x00	; 0
      83c:	ec 50       	subi	r30, 0x0C	; 12
      83e:	fe 4f       	sbci	r31, 0xFE	; 254
      840:	80 81       	ld	r24, Z
-  uart0_buf_rx_ptr_b = ptr;
      842:	90 93 14 01 	sts	0x0114, r25
-  return res;
      846:	08 95       	ret
-  // read     -> b++, read *b
-  // interrupt safe -> read *(b+1); b++
-  byte ptr;
-  byte res;
-  
-  if (uart_rx_empty()) return 0;
      848:	80 e0       	ldi	r24, 0x00	; 0
-  ptr = (uart0_buf_rx_ptr_b+1) & UART0_BUFFER_LINEAR_SIZE_MAX;
-  res = uart0_buf_rx[ptr];
-  uart0_buf_rx_ptr_b = ptr;
-  return res;
-  
-}
      84a:	08 95       	ret
 
 0000084c <uart_receive_char>:
-{
-  // write    -> e++, write *e
-  // interrupt safe -> write *(e+1); e++
-  byte ptr;
-
-  ptr = (uart0_buf_rx_ptr_e+1) & UART0_BUFFER_LINEAR_SIZE_MAX;
      84c:	90 91 13 01 	lds	r25, 0x0113
      850:	9f 5f       	subi	r25, 0xFF	; 255
      852:	9f 70       	andi	r25, 0x0F	; 15
-  uart0_buf_rx[ptr] = dat;
      854:	e9 2f       	mov	r30, r25
      856:	f0 e0       	ldi	r31, 0x00	; 0
      858:	ec 50       	subi	r30, 0x0C	; 12
      85a:	fe 4f       	sbci	r31, 0xFE	; 254
      85c:	80 83       	st	Z, r24
-  uart0_buf_rx_ptr_e = ptr;
      85e:	90 93 13 01 	sts	0x0113, r25
      862:	08 95       	ret
 
 00000864 <uart_send_char>:
-char uart_send_char(void)
-{
-  byte ptr;
-  byte res;
-
-  ptr = uart0_buf_tx_ptr;
      864:	90 91 12 01 	lds	r25, 0x0112
-  res = uart0_buf_tx[ptr];
      868:	e9 2f       	mov	r30, r25
      86a:	f0 e0       	ldi	r31, 0x00	; 0
      86c:	e5 5a       	subi	r30, 0xA5	; 165
      86e:	fe 4f       	sbci	r31, 0xFE	; 254
      870:	80 81       	ld	r24, Z
-  uart0_buf_tx_ptr = ptr+1;
      872:	9f 5f       	subi	r25, 0xFF	; 255
      874:	90 93 12 01 	sts	0x0112, r25
-  return res;
-}
      878:	08 95       	ret
 
 0000087a <uart_send>:
-/******************************************************/
-// start sending TX buffer
-/******************************************************/
-void uart_send(void)
-{
-  if (uart0_flags.txing == false) {
      87a:	80 91 0b 01 	lds	r24, 0x010B
      87e:	80 fd       	sbrc	r24, 0
      880:	0a c0       	rjmp	.+20     	; 0x896 <uart_send+0x1c>
-    // is some data in buffer ?
-    uart0_flags.txing = true;
      882:	80 91 0b 01 	lds	r24, 0x010B
      886:	81 60       	ori	r24, 0x01	; 1
      888:	80 93 0b 01 	sts	0x010B, r24
-    //uart0_tx_timeout = UART0_TX_TIMEOUT;
-    UART0_TX_ENA;  // tx mode
      88c:	90 9a       	sbi	0x12, 0	; 18
-    uart0_buf_tx_ptr = 0; // send first byte from buffer
      88e:	10 92 12 01 	sts	0x0112, r1
-    UART0_PROC_UDR = uart_send_char();
      892:	e8 df       	rcall	.-48     	; 0x864 <uart_send_char>
      894:	8c b9       	out	0x0c, r24	; 12
      896:	08 95       	ret
 
 00000898 <uart_interrupt_rx>:
-/******************************************************/
-// Enable/disable interrupts
-/******************************************************/
-void uart_interrupt_rx(byte enable)
-{
-  if (enable)
      898:	88 23       	and	r24, r24
      89a:	11 f0       	breq	.+4      	; 0x8a0 <uart_interrupt_rx+0x8>
-    UART0_PROC_UCSRB |= BV(UART0_PROC_RXCIE);
      89c:	57 9a       	sbi	0x0a, 7	; 10
      89e:	08 95       	ret
-   else
-    UART0_PROC_UCSRB &= ~BV(UART0_PROC_RXCIE);
      8a0:	57 98       	cbi	0x0a, 7	; 10
      8a2:	08 95       	ret
 
 000008a4 <uart_interrupt_tx>:
-}
-
-void uart_interrupt_tx(byte enable)
-{
-  if (enable)
      8a4:	88 23       	and	r24, r24
      8a6:	11 f0       	breq	.+4      	; 0x8ac <uart_interrupt_tx+0x8>
-    UART0_PROC_UCSRB |= BV(UART0_PROC_TXCIE);
      8a8:	56 9a       	sbi	0x0a, 6	; 10
      8aa:	08 95       	ret
-   else
-    UART0_PROC_UCSRB &= ~BV(UART0_PROC_TXCIE);
      8ac:	56 98       	cbi	0x0a, 6	; 10
      8ae:	08 95       	ret
 
 000008b0 <__vector_18>:
-
-/******************************************************/
-//
-/******************************************************/
-ISR(UART0_PROC_RX_vect)
-{
      8b0:	1f 92       	push	r1
      8b2:	0f 92       	push	r0
      8b4:	0f b6       	in	r0, 0x3f	; 63
@@ -1134,23 +1075,14 @@ ISR(UART0_PROC_RX_vect)
      8d0:	bf 93       	push	r27
      8d2:	ef 93       	push	r30
      8d4:	ff 93       	push	r31
-  byte tmpDat;
-  byte tmpStatus;
-  
-  uart0_rx_timeout = UART0_TIMEOUT;
      8d6:	85 e0       	ldi	r24, 0x05	; 5
      8d8:	80 93 0d 01 	sts	0x010D, r24
-  tmpStatus = UART0_PROC_UCSRA;
      8dc:	8b b1       	in	r24, 0x0b	; 11
-  uart0_status |= tmpStatus;
      8de:	90 91 0c 01 	lds	r25, 0x010C
      8e2:	89 2b       	or	r24, r25
      8e4:	80 93 0c 01 	sts	0x010C, r24
-  tmpDat = UART0_PROC_UDR;
      8e8:	8c b1       	in	r24, 0x0c	; 12
-  uart_receive_char(tmpDat);
      8ea:	b0 df       	rcall	.-160    	; 0x84c <uart_receive_char>
-}
      8ec:	ff 91       	pop	r31
      8ee:	ef 91       	pop	r30
      8f0:	bf 91       	pop	r27
@@ -1172,12 +1104,6 @@ ISR(UART0_PROC_RX_vect)
      910:	18 95       	reti
 
 00000912 <__vector_20>:
-
-/******************************************************/
-//
-/******************************************************/
-ISR(UART0_PROC_TX_vect)
-{
      912:	1f 92       	push	r1
      914:	0f 92       	push	r0
      916:	0f b6       	in	r0, 0x3f	; 63
@@ -1197,38 +1123,19 @@ ISR(UART0_PROC_TX_vect)
      932:	bf 93       	push	r27
      934:	ef 93       	push	r30
      936:	ff 93       	push	r31
-  byte tmpDat;
-
-  // ???
-  if (uart0_flags.txing == false) return;
      938:	80 91 0b 01 	lds	r24, 0x010B
      93c:	80 ff       	sbrs	r24, 0
      93e:	0d c0       	rjmp	.+26     	; 0x95a <__vector_20+0x48>
-
-  // is next data in buffer?
-  if (uart0_buf_tx_ptr > 8) {
      940:	80 91 12 01 	lds	r24, 0x0112
      944:	89 30       	cpi	r24, 0x09	; 9
      946:	38 f0       	brcs	.+14     	; 0x956 <__vector_20+0x44>
-    // whole buffer was sended
-    uart0_flags.txing = FALSE;
      948:	80 91 0b 01 	lds	r24, 0x010B
      94c:	8e 7f       	andi	r24, 0xFE	; 254
      94e:	80 93 0b 01 	sts	0x010B, r24
-    // if whole packed was send, wait for response
-    //uart0_flags.wait_tx = TRUE;
-    UART0_TX_DIS;   // rx mode
      952:	90 98       	cbi	0x12, 0	; 18
-    return;
      954:	02 c0       	rjmp	.+4      	; 0x95a <__vector_20+0x48>
-  } else {
-    // send next byte
-    tmpDat = uart_send_char();
      956:	86 df       	rcall	.-244    	; 0x864 <uart_send_char>
-    UART0_PROC_UDR = tmpDat;
      958:	8c b9       	out	0x0c, r24	; 12
-  }
-}
      95a:	ff 91       	pop	r31
      95c:	ef 91       	pop	r30
      95e:	bf 91       	pop	r27
@@ -1250,37 +1157,19 @@ ISR(UART0_PROC_TX_vect)
      97e:	18 95       	reti
 
 00000980 <uart0_init>:
-// Initialization
-void uart0_init(void)
-{
-  // UART port
-
-  UART0_PROC_UBRRL = (F_CPU / (16UL * UART0_DEFAULT_BAUD)) - 1;
      980:	87 e0       	ldi	r24, 0x07	; 7
      982:	89 b9       	out	0x09, r24	; 9
-
-  UART0_PROC_UCSRB |= BV(UART0_PROC_TXEN) | BV(UART0_PROC_RXEN); /* tx/rx enable */
      984:	8a b1       	in	r24, 0x0a	; 10
      986:	88 61       	ori	r24, 0x18	; 24
      988:	8a b9       	out	0x0a, r24	; 10
-
-  uart_interrupt_rx(true);
      98a:	81 e0       	ldi	r24, 0x01	; 1
      98c:	85 df       	rcall	.-246    	; 0x898 <uart_interrupt_rx>
-  uart_interrupt_tx(true);
      98e:	81 e0       	ldi	r24, 0x01	; 1
      990:	89 df       	rcall	.-238    	; 0x8a4 <uart_interrupt_tx>
-  uart0_status = 0;
      992:	10 92 0c 01 	sts	0x010C, r1
      996:	08 95       	ret
 
 00000998 <uart0_process>:
-}
-
-//----------------------------------------------------------
-// process internal logic
-void uart0_process(void)
-{
      998:	bf 92       	push	r11
      99a:	cf 92       	push	r12
      99c:	df 92       	push	r13
@@ -1290,34 +1179,16 @@ void uart0_process(void)
      9a4:	1f 93       	push	r17
      9a6:	cf 93       	push	r28
      9a8:	df 93       	push	r29
-  return ((uart0_buf_pac_rx_ptr_e - uart0_buf_pac_rx_ptr_b) & UART0_BUFFER_PACKET_SIZE_MAX);
-}
-
-inline byte uart_pac_tx_empty(void)
-{
-  return (uart0_buf_pac_tx_ptr_e == uart0_buf_pac_tx_ptr_b);
      9aa:	90 91 10 01 	lds	r25, 0x0110
      9ae:	80 91 11 01 	lds	r24, 0x0111
-  byte iptr;
-  byte sum;
-  byte *ptr;
-
-  // pøedává zpravy na odvysílání z paketového do lineárního bufferu
-  if (!uart_pac_tx_empty()) {
      9b2:	98 17       	cp	r25, r24
      9b4:	41 f1       	breq	.+80     	; 0xa06 <uart0_process+0x6e>
-    // jsou data k odesláni ?
-    if ((!uart0_flags.txing)) {
      9b6:	80 91 0b 01 	lds	r24, 0x010B
      9ba:	80 fd       	sbrc	r24, 0
      9bc:	24 c0       	rjmp	.+72     	; 0xa06 <uart0_process+0x6e>
-      // nevysíláme ?
-      // zaèneme vysílat další zprávu
-      iptr = (uart0_buf_pac_tx_ptr_b+1) & UART0_BUFFER_PACKET_SIZE_MAX;
      9be:	50 91 11 01 	lds	r21, 0x0111
      9c2:	5f 5f       	subi	r21, 0xFF	; 255
      9c4:	5f 70       	andi	r21, 0x0F	; 15
-      ptr = (byte *) &(uart0_buf_pac_tx[iptr].b[0]);
      9c6:	85 2f       	mov	r24, r21
      9c8:	90 e0       	ldi	r25, 0x00	; 0
      9ca:	9c 01       	movw	r18, r24
@@ -1338,68 +1209,31 @@ inline byte uart_pac_tx_empty(void)
      9e8:	df 01       	movw	r26, r30
      9ea:	a8 1b       	sub	r26, r24
      9ec:	b9 0b       	sbc	r27, r25
-      for (i=0; i<9; i++) {
-        uart0_buf_tx[i] = *ptr;
      9ee:	41 91       	ld	r20, Z+
      9f0:	a5 5a       	subi	r26, 0xA5	; 165
      9f2:	be 4f       	sbci	r27, 0xFE	; 254
      9f4:	4c 93       	st	X, r20
-    if ((!uart0_flags.txing)) {
-      // nevysíláme ?
-      // zaèneme vysílat další zprávu
-      iptr = (uart0_buf_pac_tx_ptr_b+1) & UART0_BUFFER_PACKET_SIZE_MAX;
-      ptr = (byte *) &(uart0_buf_pac_tx[iptr].b[0]);
-      for (i=0; i<9; i++) {
      9f6:	e2 17       	cp	r30, r18
      9f8:	f3 07       	cpc	r31, r19
      9fa:	b1 f7       	brne	.-20     	; 0x9e8 <uart0_process+0x50>
-        uart0_buf_tx[i] = *ptr;
-        ptr++;
-      }
-      uart0_buf_pac_tx_ptr_b = iptr;
      9fc:	50 93 11 01 	sts	0x0111, r21
-      uart0_buf_tx_ptr = 0;
      a00:	10 92 12 01 	sts	0x0112, r1
-      uart_send();
      a04:	3a df       	rcall	.-396    	; 0x87a <uart_send>
-    }
-  }
-
-  // kontroluje pøijatá data
-  if ((!uart0_flags.data_received) && (uart_rx_size() > 8)) {
      a06:	80 91 0b 01 	lds	r24, 0x010B
      a0a:	83 fd       	sbrc	r24, 3
      a0c:	4a c0       	rjmp	.+148    	; 0xaa2 <uart0_process+0x10a>
-/******************************************************/
-// Useful functions
-/******************************************************/
-inline byte uart_rx_size(void)
-{
-  return ((uart0_buf_rx_ptr_e - uart0_buf_rx_ptr_b) & UART0_BUFFER_LINEAR_SIZE_MAX);
      a0e:	80 91 13 01 	lds	r24, 0x0113
      a12:	90 91 14 01 	lds	r25, 0x0114
      a16:	89 1b       	sub	r24, r25
      a18:	8f 70       	andi	r24, 0x0F	; 15
-      uart_send();
-    }
-  }
-
-  // kontroluje pøijatá data
-  if ((!uart0_flags.data_received) && (uart_rx_size() > 8)) {
      a1a:	89 30       	cpi	r24, 0x09	; 9
      a1c:	08 f4       	brcc	.+2      	; 0xa20 <uart0_process+0x88>
      a1e:	41 c0       	rjmp	.+130    	; 0xaa2 <uart0_process+0x10a>
-    // máme alespoò 9 bytù dat a nejsou nezpracovaná data?
-
-
-    // zjístíme adresu volného místa v paketovém pøijímacm bufferu
-    iptr = (uart0_buf_pac_rx_ptr_e+1) & UART0_BUFFER_PACKET_SIZE_MAX;
      a20:	b0 90 0e 01 	lds	r11, 0x010E
      a24:	81 e0       	ldi	r24, 0x01	; 1
      a26:	8b 0d       	add	r24, r11
      a28:	8f 70       	andi	r24, 0x0F	; 15
      a2a:	b8 2e       	mov	r11, r24
-    ptr = (byte *) &(uart0_buf_pac_rx[iptr].b[0]);
      a2c:	e8 2e       	mov	r14, r24
      a2e:	f1 2c       	mov	r15, r1
      a30:	f7 01       	movw	r30, r14
@@ -1419,44 +1253,19 @@ inline byte uart_rx_size(void)
      a4c:	07 5f       	subi	r16, 0xF7	; 247
      a4e:	1f 4f       	sbci	r17, 0xFF	; 255
      a50:	ec 01       	movw	r28, r24
-
-    // pøedáme do paketového pøijímacího bufferu
-    for(i=0; i<9; i++) {
-      *ptr = uart_get_char();
      a52:	e8 de       	rcall	.-560    	; 0x824 <uart_get_char>
      a54:	89 93       	st	Y+, r24
-    // zjístíme adresu volného místa v paketovém pøijímacm bufferu
-    iptr = (uart0_buf_pac_rx_ptr_e+1) & UART0_BUFFER_PACKET_SIZE_MAX;
-    ptr = (byte *) &(uart0_buf_pac_rx[iptr].b[0]);
-
-    // pøedáme do paketového pøijímacího bufferu
-    for(i=0; i<9; i++) {
      a56:	c0 17       	cp	r28, r16
      a58:	d1 07       	cpc	r29, r17
      a5a:	d9 f7       	brne	.-10     	; 0xa52 <uart0_process+0xba>
      a5c:	f6 01       	movw	r30, r12
      a5e:	90 e0       	ldi	r25, 0x00	; 0
      a60:	80 e0       	ldi	r24, 0x00	; 0
-    }
-    
-    // odpovídá kontrolní souèet?
-    sum = 0;
-    for(i=0; i<8; i++) {
-      sum += uart0_buf_pac_rx[iptr].b[i];
      a62:	21 91       	ld	r18, Z+
      a64:	92 0f       	add	r25, r18
-      //uart0_buf_pac_rx[0].b[i] = uart_get_char(); 
-    }
-    
-    // odpovídá kontrolní souèet?
-    sum = 0;
-    for(i=0; i<8; i++) {
      a66:	8f 5f       	subi	r24, 0xFF	; 255
      a68:	88 30       	cpi	r24, 0x08	; 8
      a6a:	d9 f7       	brne	.-10     	; 0xa62 <uart0_process+0xca>
-      sum += uart0_buf_pac_rx[iptr].b[i];
-    }
-    if (sum == uart0_buf_pac_rx[iptr].b[8]) {
      a6c:	f7 01       	movw	r30, r14
      a6e:	ee 0f       	add	r30, r30
      a70:	ff 1f       	adc	r31, r31
@@ -1471,24 +1280,14 @@ inline byte uart_rx_size(void)
      a82:	80 85       	ldd	r24, Z+8	; 0x08
      a84:	98 13       	cpse	r25, r24
      a86:	08 c0       	rjmp	.+16     	; 0xa98 <uart0_process+0x100>
-      // souèet v poøádku
-      uart0_flags.data_received = TRUE; 
      a88:	80 91 0b 01 	lds	r24, 0x010B
      a8c:	88 60       	ori	r24, 0x08	; 8
      a8e:	80 93 0b 01 	sts	0x010B, r24
-      uart0_buf_pac_rx_ptr_e = iptr;
      a92:	b0 92 0e 01 	sts	0x010E, r11
      a96:	05 c0       	rjmp	.+10     	; 0xaa2 <uart0_process+0x10a>
-
-     } else {
-      uart0_flags.data_receive_error = TRUE;
      a98:	80 91 0b 01 	lds	r24, 0x010B
      a9c:	80 61       	ori	r24, 0x10	; 16
      a9e:	80 93 0b 01 	sts	0x010B, r24
-    }
-  }
-
-}
      aa2:	df 91       	pop	r29
      aa4:	cf 91       	pop	r28
      aa6:	1f 91       	pop	r17
@@ -1501,46 +1300,27 @@ inline byte uart_rx_size(void)
      ab4:	08 95       	ret
 
 00000ab6 <uart0_ISR_timer>:
-void uart0_ISR_timer(void)
-{
-  static byte uart0_rx_timeout_flag = 0;
-  
-  // smazání náhodnì pøijatých dat
-  if (uart0_rx_timeout > 0) {
      ab6:	80 91 0d 01 	lds	r24, 0x010D
      aba:	88 23       	and	r24, r24
      abc:	41 f0       	breq	.+16     	; 0xace <uart0_ISR_timer+0x18>
-    uart0_rx_timeout--;
      abe:	80 91 0d 01 	lds	r24, 0x010D
      ac2:	81 50       	subi	r24, 0x01	; 1
      ac4:	80 93 0d 01 	sts	0x010D, r24
-    uart0_rx_timeout_flag = false;
      ac8:	10 92 0a 01 	sts	0x010A, r1
      acc:	08 95       	ret
-    } else {
-    if (!uart0_rx_timeout_flag) {
      ace:	80 91 0a 01 	lds	r24, 0x010A
      ad2:	81 11       	cpse	r24, r1
      ad4:	07 c0       	rjmp	.+14     	; 0xae4 <uart0_ISR_timer+0x2e>
-      uart0_buf_rx_ptr_b = uart0_buf_rx_ptr_e;
      ad6:	80 91 13 01 	lds	r24, 0x0113
      ada:	80 93 14 01 	sts	0x0114, r24
-      uart0_rx_timeout_flag = true;
      ade:	81 e0       	ldi	r24, 0x01	; 1
      ae0:	80 93 0a 01 	sts	0x010A, r24
      ae4:	08 95       	ret
 
 00000ae6 <uart0_get_data_begin>:
-// must be called uart0_get_data_end() at end of handling data
-byte * uart0_get_data_begin(void)
-{
-  byte iptr;
-  
-  iptr = (uart0_buf_pac_rx_ptr_b+1) & UART0_BUFFER_PACKET_SIZE_MAX;
      ae6:	80 91 0f 01 	lds	r24, 0x010F
      aea:	8f 5f       	subi	r24, 0xFF	; 255
      aec:	8f 70       	andi	r24, 0x0F	; 15
-  return (byte *) &uart0_buf_pac_rx[iptr].b[0];
      aee:	90 e0       	ldi	r25, 0x00	; 0
      af0:	9c 01       	movw	r18, r24
      af2:	22 0f       	add	r18, r18
@@ -1551,70 +1331,30 @@ byte * uart0_get_data_begin(void)
      afc:	33 1f       	adc	r19, r19
      afe:	82 0f       	add	r24, r18
      b00:	93 1f       	adc	r25, r19
-}
      b02:	8c 59       	subi	r24, 0x9C	; 156
      b04:	9e 4f       	sbci	r25, 0xFE	; 254
      b06:	08 95       	ret
 
 00000b08 <uart0_get_data_end>:
-// must be called after uart0_get_data_begin()
-byte uart0_get_data_end(void)
-{
-  byte i;
-  
-  i = (uart0_buf_pac_rx_ptr_b+1) & UART0_BUFFER_PACKET_SIZE_MAX;
      b08:	80 91 0f 01 	lds	r24, 0x010F
      b0c:	8f 5f       	subi	r24, 0xFF	; 255
      b0e:	8f 70       	andi	r24, 0x0F	; 15
-  uart0_buf_pac_rx_ptr_b = i;
      b10:	80 93 0f 01 	sts	0x010F, r24
-  return (uart0_buf_pac_rx_ptr_e == uart0_buf_pac_rx_ptr_b);
-}
-
-inline byte uart_pac_rx_size(void)
-{
-  return ((uart0_buf_pac_rx_ptr_e - uart0_buf_pac_rx_ptr_b) & UART0_BUFFER_PACKET_SIZE_MAX);
      b14:	80 91 0e 01 	lds	r24, 0x010E
      b18:	90 91 0f 01 	lds	r25, 0x010F
      b1c:	89 1b       	sub	r24, r25
      b1e:	8f 70       	andi	r24, 0x0F	; 15
-  
-  i = (uart0_buf_pac_rx_ptr_b+1) & UART0_BUFFER_PACKET_SIZE_MAX;
-  uart0_buf_pac_rx_ptr_b = i;
-  
-  i = uart_pac_rx_size();
-  if (i == 0) {
      b20:	29 f4       	brne	.+10     	; 0xb2c <uart0_get_data_end+0x24>
-    uart0_flags.data_received = FALSE;
      b22:	90 91 0b 01 	lds	r25, 0x010B
      b26:	97 7f       	andi	r25, 0xF7	; 247
      b28:	90 93 0b 01 	sts	0x010B, r25
-  }
-  return i;
-}
      b2c:	08 95       	ret
 
 00000b2e <uart0_put_data>:
-
-
-//----------------------------------------------------------
-// send packet pointed by dataptr
-void uart0_put_data(byte * dataptr)
-{
      b2e:	fc 01       	movw	r30, r24
-  byte i;
-  byte iptr;
-  byte sum;
-
-  iptr = (uart0_buf_pac_tx_ptr_e+1) & UART0_BUFFER_PACKET_SIZE_MAX;
      b30:	50 91 10 01 	lds	r21, 0x0110
      b34:	5f 5f       	subi	r21, 0xFF	; 255
      b36:	5f 70       	andi	r21, 0x0F	; 15
-
-  sum = 0;
-  // copy data with sum
-  for(i=0; i<8; i++) {
-    uart0_buf_pac_tx[iptr].b[i] = *dataptr;
      b38:	85 2f       	mov	r24, r21
      b3a:	90 e0       	ldi	r25, 0x00	; 0
      b3c:	dc 01       	movw	r26, r24
@@ -1628,36 +1368,15 @@ void uart0_put_data(byte * dataptr)
      b4c:	b9 1f       	adc	r27, r25
      b4e:	ac 5f       	subi	r26, 0xFC	; 252
      b50:	bd 4f       	sbci	r27, 0xFD	; 253
-  byte iptr;
-  byte sum;
-
-  iptr = (uart0_buf_pac_tx_ptr_e+1) & UART0_BUFFER_PACKET_SIZE_MAX;
-
-  sum = 0;
      b52:	30 e0       	ldi	r19, 0x00	; 0
-  // copy data with sum
-  for(i=0; i<8; i++) {
      b54:	20 e0       	ldi	r18, 0x00	; 0
-    uart0_buf_pac_tx[iptr].b[i] = *dataptr;
      b56:	40 81       	ld	r20, Z
      b58:	4d 93       	st	X+, r20
-    sum += *dataptr;
      b5a:	41 91       	ld	r20, Z+
      b5c:	34 0f       	add	r19, r20
-
-  iptr = (uart0_buf_pac_tx_ptr_e+1) & UART0_BUFFER_PACKET_SIZE_MAX;
-
-  sum = 0;
-  // copy data with sum
-  for(i=0; i<8; i++) {
      b5e:	2f 5f       	subi	r18, 0xFF	; 255
      b60:	28 30       	cpi	r18, 0x08	; 8
      b62:	c9 f7       	brne	.-14     	; 0xb56 <uart0_put_data+0x28>
-    uart0_buf_pac_tx[iptr].b[i] = *dataptr;
-    sum += *dataptr;
-    dataptr++;
-  }
-  uart0_buf_pac_tx[iptr].n.sum = sum; // save calculated sum
      b64:	fc 01       	movw	r30, r24
      b66:	ee 0f       	add	r30, r30
      b68:	ff 1f       	adc	r31, r31
@@ -1671,18 +1390,10 @@ void uart0_put_data(byte * dataptr)
      b78:	ec 5f       	subi	r30, 0xFC	; 252
      b7a:	fd 4f       	sbci	r31, 0xFD	; 253
      b7c:	30 87       	std	Z+8, r19	; 0x08
-
-  uart0_buf_pac_tx_ptr_e = iptr;
      b7e:	50 93 10 01 	sts	0x0110, r21
      b82:	08 95       	ret
 
 00000b84 <uart0_set_baud>:
-// Set from default baud rates
-#define MACRO_BAUDRATE(BAUDRATE) (UART0_PROC_UBRRL = (F_CPU / (16UL * BAUDRATE)) - 1)
-void uart0_set_baud(byte baud)
-{
-  // UART port
-  switch (baud) {
      b84:	90 e0       	ldi	r25, 0x00	; 0
      b86:	8b 30       	cpi	r24, 0x0B	; 11
      b88:	91 05       	cpc	r25, r1
@@ -1691,73 +1402,38 @@ void uart0_set_baud(byte baud)
      b8e:	ea 5b       	subi	r30, 0xBA	; 186
      b90:	ff 4f       	sbci	r31, 0xFF	; 255
      b92:	80 c2       	rjmp	.+1280   	; 0x1094 <__tablejump2__>
-    case 0:  
-      MACRO_BAUDRATE(9600);
      b94:	8f e5       	ldi	r24, 0x5F	; 95
      b96:	89 b9       	out	0x09, r24	; 9
-      break;
      b98:	08 95       	ret
-    case 1:  
-      MACRO_BAUDRATE(14400);
      b9a:	8f e3       	ldi	r24, 0x3F	; 63
      b9c:	89 b9       	out	0x09, r24	; 9
-      break;
      b9e:	08 95       	ret
-    case 2:  
-      MACRO_BAUDRATE(19200);
      ba0:	8f e2       	ldi	r24, 0x2F	; 47
      ba2:	89 b9       	out	0x09, r24	; 9
-      break;
      ba4:	08 95       	ret
-    case 3:  
-      MACRO_BAUDRATE(28800);
      ba6:	8f e1       	ldi	r24, 0x1F	; 31
      ba8:	89 b9       	out	0x09, r24	; 9
-      break;
      baa:	08 95       	ret
-    case 4:  
-      MACRO_BAUDRATE(38400);
      bac:	87 e1       	ldi	r24, 0x17	; 23
      bae:	89 b9       	out	0x09, r24	; 9
-      break;
      bb0:	08 95       	ret
-    case 5:  
-      MACRO_BAUDRATE(57600);
      bb2:	8f e0       	ldi	r24, 0x0F	; 15
      bb4:	89 b9       	out	0x09, r24	; 9
-      break;
      bb6:	08 95       	ret
-    case 6:  
-      MACRO_BAUDRATE(76800);
      bb8:	8b e0       	ldi	r24, 0x0B	; 11
      bba:	89 b9       	out	0x09, r24	; 9
-      break;
      bbc:	08 95       	ret
-    case 7:  
-      MACRO_BAUDRATE(115200);
      bbe:	87 e0       	ldi	r24, 0x07	; 7
      bc0:	89 b9       	out	0x09, r24	; 9
-      break;
      bc2:	08 95       	ret
-    case 8:  
-      MACRO_BAUDRATE(230400);
      bc4:	83 e0       	ldi	r24, 0x03	; 3
      bc6:	89 b9       	out	0x09, r24	; 9
-      break;
      bc8:	08 95       	ret
-    case 9:  
-      MACRO_BAUDRATE(250000);
      bca:	82 e0       	ldi	r24, 0x02	; 2
      bcc:	89 b9       	out	0x09, r24	; 9
-      break;
      bce:	08 95       	ret
-    case 10:  
-      MACRO_BAUDRATE(500000);
      bd0:	19 b8       	out	0x09, r1	; 9
-      break;
      bd2:	08 95       	ret
-    default:  
-      MACRO_BAUDRATE(19200);
      bd4:	8f e2       	ldi	r24, 0x2F	; 47
      bd6:	89 b9       	out	0x09, r24	; 9
      bd8:	08 95       	ret
@@ -2326,11 +2002,11 @@ void try_receive_data(void)
      f16:	86 e6       	ldi	r24, 0x66	; 102
      f18:	41 c9       	rjmp	.-3454   	; 0x19c <TB_SendAck>
      f1a:	08 95       	ret
-					}
-					break;
-					
-					
-				case TB_CMD_INTERLOCK:
+				/*
+				Musím udìlat že pokud Servis_ON je v 1 tedy je povoleno otevírání dveøí a komory
+				Pokud je Shield v 1
+				
+				*/
 					switch (TB_bufIn[TB_BUF_TYPE])
      f1c:	80 91 51 01 	lds	r24, 0x0151
      f20:	88 23       	and	r24, r24
@@ -2500,8 +2176,8 @@ void try_receive_data(void)
     100a:	86 e6       	ldi	r24, 0x66	; 102
     100c:	c7 c8       	rjmp	.-3698   	; 0x19c <TB_SendAck>
     100e:	08 95       	ret
-								}
 							}
+						
 							break;
 							
 						default:

@@ -285,6 +285,11 @@ void try_receive_data(void)
 				// Doufam že toto tam bude
 					
 				case TB_CMD_INTERLOCK:
+				/*
+				Musím udìlat že pokud Servis_ON je v 1 tedy je povoleno otevírání dveøí a komory
+				Pokud je Shield v 1
+				
+				*/
 					switch (TB_bufIn[TB_BUF_TYPE])
 					{
 						//info
@@ -344,8 +349,10 @@ void try_receive_data(void)
 									{
 										TB_SendAck(TB_ERR_NOK, 0);
 									}
-								}
+
+								} 
 							}
+						
 							break;
 							
 						default:

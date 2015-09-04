@@ -718,7 +718,7 @@ END GROUP
  .debug_str     0x00000370      0x3b2 inc/uart_tri_0.o
                                 0x449 (size before relaxing)
  .debug_str     0x00000722      0x13b LIC_BB.o
-                                0x3cb (size before relaxing)
+                                0x3c3 (size before relaxing)
 
 .debug_loc      0x00000000      0xc13
  *(.debug_loc)
