@@ -277,34 +277,7 @@ byte TB_Decode(void)
 				break;
 		}
 		break;
-	//Pøi pøijmutí pøíkazu 16 TB_CMD_Ventil tak pøi jiných hodnotách než 1-4 neboli povel vrátí Errorovou hlášku
-	case TB_CMD_VENTIL:/*
-		switch (TB_bufIn[TB_BUF_TYPE])
-		{
-			case 1:		
-				TB_SendAck(TB_ERR_OK, TB_bufIn[TB_BUF_MOTOR]);
-				break;
-			case 2:
-				TB_SendAck(TB_ERR_OK, TB_bufIn[TB_BUF_MOTOR]);
-				break;
-			case 3:
-				TB_SendAck(TB_ERR_OK, TB_bufIn[TB_BUF_MOTOR]);
-				break;
-			case 4:
-				TB_SendAck(TB_ERR_OK, TB_bufIn[TB_BUF_MOTOR]);
-				break;
-			default:
-				TB_SendAck(TB_ERR_VALUE, TB_bufIn[TB_BUF_MOTOR]); // invalid value
-				break;
-		}*/
-		return TB_CMD_VENTIL;
-		break;
-	case TB_CMD_VZOREK:
-		return TB_CMD_VZOREK;
-		break;
-    case TB_CMD_RFS:
-		return TB_CMD_RFS;
-		break;
+	
     case TB_CMD_SGP:
 		if (TB_bufIn[TB_BUF_MOTOR] != 0)
 		{
@@ -379,6 +352,22 @@ byte TB_Decode(void)
         }
       }
       break;
+	//Pøi pøijmutí pøíkazu 16 TB_CMD_Ventil tak pøi jiných hodnotách než 1-4 neboli povel vrátí Errorovou hlášku
+	case TB_CMD_RFS:
+		return TB_CMD_RFS;
+		break;
+	case TB_CMD_VENTIL:
+		return TB_CMD_VENTIL;
+		break;
+	case TB_CMD_VZOREK:
+		return TB_CMD_VZOREK;
+		break;
+	case TB_CMD_BLACKBOX:
+		return TB_CMD_BLACKBOX;
+		break;
+	case TB_CMD_INTERLOCK:
+		return TB_CMD_INTERLOCK;
+		break;
     case 136: // get module version
       if (TB_bufIn[TB_BUF_TYPE] == 0) {
         // text mode

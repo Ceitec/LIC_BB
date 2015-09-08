@@ -39,6 +39,10 @@ volatile unsigned char Check_CHAMBER;
 #define _IL_SHIELD_ON (PIND & (1 << PIND1))
 #define _IL_SERVIS_ON (PIND & (1 << PIND2))
 #define _IL_CHAMBER_ON (PIND & (1 << PIND3))
+#define _IL_SHIELD_OFF !(PIND & (1 << PIND1))
+#define _IL_SERVIS_OFF !(PIND & (1 << PIND2))
+#define _IL_CHAMBER_OFF !(PIND & (1 << PIND3))
+
 
 
 //PD1 - Shield
@@ -73,7 +77,7 @@ void PreruseniBlackBox_Init(void);
 ISR(INT1_SHIELD)
 {
 	//Zde se musí dát nastavení do log.0 pro výstup PA7 Laser IN
-	if (!_IL_SHIELD_ON)
+	if (_IL_SERVIS_ON)
 	{
 		PORTA &= ~(1 << PA7);
 		Check_SHIELD = TRUE;
@@ -82,13 +86,22 @@ ISR(INT1_SHIELD)
 
 ISR(INT2_SERVIS)
 {
-	Check_SERVIS = TRUE;
+	if(_IL_SHIELD_ON)
+	{
+		PORTA &= ~(1 << PA7);
+	}
+	else if (_IL_CHAMBER_ON)
+	{
+		PORTA &= ~(1 << PA7);
+	}
+	//Check_SERVIS = TRUE;
 }
 
 ISR(INT3_CHAMBER)
 {
 	//Zde se musí dát nastavení do log.0 pro výstup PA7 Laser IN
-	if (!_IL_CHAMBER_ON)
+	
+	if (_IL_SERVIS_ON)
 	{
 		PORTA &= ~(1 << PA7);
 		Check_SHIELD = TRUE;
@@ -306,53 +319,68 @@ void try_receive_data(void)
 							{
 								TB_SendAck(TB_ERR_NOK, 0);
 							}
+							break;
 						// Shield
 						case IL_LASER:
 							// Pokud je Motor nastaven do 1 neboli true tak chce povolit laser
 							if (TB_bufIn[TB_BUF_MOTOR] == 0)
 							{
+								TB_SendAck(50, 1);
 								//Je v servisnim modu?
 								// Pokud zjistíme že je zavøen kryt aj komora
-								if (_IL_SHIELD_ON || _IL_CHAMBER_ON)
+								if (_IL_SHIELD_OFF & _IL_CHAMBER_OFF)
 								{
-									if (_IL_SERVIS_ON)
-									{
+										TB_SendAck(90, 1);
 										if (TB_Value == 1)
 										{
 											//Vypne Interlock
 											PORTA |= (1 << PA7);
-											TB_SendAck(TB_ERR_OK, 1);
+											TB_SendAck(40, 1);
+											//TB_SendAck(TB_ERR_OK, 1);
 										}
 										else if (TB_Value == 0)
 										{
 											//Zapne interlock
 											PORTA &= ~(1 << PA7);
-											TB_SendAck(TB_IL_ERR, 1);
+											TB_SendAck(41, 1);
+											//TB_SendAck(TB_IL_ERR, 1);
 										}
-									}
+										else
+										{
+											TB_SendAck(TB_ERR_NOK, 0);
+										}
+								
 								}
 								else
 								{
-									if (TB_Value == 1)
+									TB_SendAck(91, 1);
+									if (!_IL_SERVIS_ON)
 									{
-										//Vypne Interlock
-										PORTA |= (1 << PA7);
-										TB_SendAck(TB_ERR_OK, 1);
-									} 
-									else if (TB_Value == 0)
-									{
-										//Zapne interlock
-										PORTA &= ~(1 << PA7);
-										TB_SendAck(TB_IL_ERR, 1);
+										if (TB_Value == 1)
+										{
+											//Vypne Interlock
+											PORTA |= (1 << PA7);
+											TB_SendAck(42, 1);
+											//TB_SendAck(TB_ERR_OK, 1);
+										} 
+										else if (TB_Value == 0)
+										{
+											//Zapne interlock
+											PORTA &= ~(1 << PA7);
+											TB_SendAck(43, 1);
+											//TB_SendAck(TB_IL_ERR, 1);
+										}
+										else
+										{
+											TB_SendAck(TB_ERR_NOK, 0);
+										}
 									}
 									else
 									{
 										TB_SendAck(TB_ERR_NOK, 0);
 									}
-
-								} 
+								}
 							}
-						
 							break;
 							
 						default:
