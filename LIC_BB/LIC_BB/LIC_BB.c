@@ -37,11 +37,11 @@ volatile unsigned char Check_SERVIS;
 volatile unsigned char Check_CHAMBER;
 
 #define _IL_SHIELD_ON (PIND & (1 << PIND1))
-#define _IL_SERVIS_ON (PIND & (1 << PIND2)) ? 1 : 0
+#define _IL_SERVIS_ON (PIND & (1 << PIND2))
 #define _IL_CHAMBER_ON (PIND & (1 << PIND3))
-#define _IL_SHIELD_OFF (PIND & (1 << PIND1)) ? 0 : 1
-#define _IL_SERVIS_OFF (PIND & (1 << PIND2)) ? 0 : 1
-#define _IL_CHAMBER_OFF (PIND & (1 << PIND3)) ? 0 : 1
+#define _IL_SHIELD_OFF (PIND & (1 << PIND1))
+#define _IL_SERVIS_OFF (PIND & (1 << PIND2))
+#define _IL_CHAMBER_OFF (PIND & (1 << PIND3))
 
 
 
